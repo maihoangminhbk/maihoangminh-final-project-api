@@ -1,0 +1,31 @@
+{
+  "name": "trello-maihoangminh-api",
+  "version": "1.0.0",
+  "description": "API for trello clone app",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "eslint": "eslint src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maihoangminhbk/trello-maihoangminh-api.git"
+  },
+  "keywords": [],
+  "author": "maihoangminhbk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maihoangminhbk/trello-maihoangminh-api/issues"
+  },
+  "homepage": "https://github.com/maihoangminhbk/trello-maihoangminh-api#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.10",
+    "@babel/eslint-parser": "^7.17.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^8.15.0"
+  }
+}
