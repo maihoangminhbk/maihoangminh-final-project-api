@@ -1,6 +1,7 @@
 import express from 'express'
 import { connectDB } from '*/config/mongodb'
 import { env } from '*/config/environment'
+import { apiV1 } from '*/routes/v1'
 import { BoardModel } from '*/models/board.model'
 
 
@@ -16,18 +17,15 @@ connectDB()
   })
 
 
-
 const bootServer = () => {
   const app = express()
 
-  app.get('/', async (req, res) => {
-    let fakeData = {
-      title: 'Minh Mai'
-    }
-    await BoardModel.createNew(fakeData)
-    res.end('<h1>Hello world</h1><hr/>')
-  })
-   
+  // Enable request body
+  app.use(express.json())
+
+  // Use APIs v1
+  app.use('/v1', apiV1)
+
   app.listen(port, hostname, () => {
     // eslint-disable-next-line no-console
     console.log(`Hello Minh Mai, Iam running at ${hostname}:${port}/`)
