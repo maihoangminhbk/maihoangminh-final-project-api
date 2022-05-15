@@ -1,11 +1,10 @@
-import { BoardService } from '*/services/board.service'
+import { ColumnService } from '*/services/column.service'
 import { HttpStatusCode } from '*/ultilities/constants'
 
 
 const createNew = async (req, res) => {
   try {
-    const result = await BoardService.createNew(req.body)
-    console.log(result)
+    const result = await ColumnService.createNew(req.body)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({
@@ -14,11 +13,10 @@ const createNew = async (req, res) => {
   }
 }
 
-const getFullBoard = async (req, res) => {
+const update = async (req, res) => {
   try {
     const { id } = req.params
-    const result = await BoardService.getFullBoard(id)
-    console.log(result)
+    const result = await ColumnService.update(id, req.body)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({
@@ -27,8 +25,7 @@ const getFullBoard = async (req, res) => {
   }
 }
 
-
-export const BoardController = {
+export const ColumnController = {
   createNew,
-  getFullBoard
+  update
 }
