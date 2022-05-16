@@ -28,10 +28,10 @@ const createNew = async (data) => {
 }
 
 /**
- * 
- * @param {string} boardId 
- * @param {string} columnId 
- * @returns 
+ *
+ * @param {string} boardId
+ * @param {string} columnId
+ * @returns
  */
 const pushColumnOrder = async (boardId, columnId) => {
   try {
