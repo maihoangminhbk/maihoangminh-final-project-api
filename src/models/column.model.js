@@ -26,10 +26,19 @@ const createNew = async (data) => {
     }
     const result = await getDB().collection(columnCollectionName).insertOne(insertValue)
 
-    return {
-      ...result,
-      boardId: insertValue.boardId.toString()
-    }
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const getOneById = async (id) => {
+  try {
+
+    const result = await getDB().collection(columnCollectionName).findOne({ _id: id })
+
+    return result
 
   } catch (error) {
     throw new Error(error)
@@ -47,7 +56,7 @@ const pushCardOrder = async (columnId, cardId) => {
     const result = await getDB().collection(columnCollectionName).findOneAndUpdate(
       { _id: ObjectId(columnId) },
       { $push: { cardOrder: cardId } },
-      { returnOriginal: false }
+      { returnDocument : 'after', returnOriginal: false }
     )
 
     return result.value
@@ -59,13 +68,24 @@ const pushCardOrder = async (columnId, cardId) => {
 const update = async (id, data) => {
   try {
 
+    const insertValue = {
+      ...data,
+      boardId: ObjectId(data.boardId)
+    }
+
     const result = await getDB().collection(columnCollectionName).findOneAndUpdate(
       { _id: ObjectId(id) },
-      { $set: data },
-      { returnOriginal: false }
+      { $set: insertValue },
+      { returnDocument : 'after', returnOriginal : false }
+    ).then(
+      updatedColumn => {
+        console.log(updatedColumn)
+        return updatedColumn
+      }
     )
-    
+
     return result.value
+
   } catch (error) {
     throw new Error(error)
   }
@@ -75,5 +95,6 @@ export const ColumnModel = {
   columnCollectionName,
   createNew,
   update,
-  pushCardOrder
+  pushCardOrder,
+  getOneById
 }

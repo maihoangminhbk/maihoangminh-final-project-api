@@ -3,12 +3,16 @@ import { ColumnModel } from '*/models/column.model'
 
 const createNew = async (data) => {
   try {
-    const newCard = await CardModel.createNew(data)
+    const result = await CardModel.createNew(data)
+    const newCardId = result.insertedId
+
+    console.log(newCardId)
+
+    const newCard = await CardModel.getOneById(newCardId)
     console.log(newCard)
     // Push card id to card order in column collection
     const columnId = newCard.columnId
-    const cardId = newCard.insertedId
-    await ColumnModel.pushCardOrder(columnId, cardId)
+    await ColumnModel.pushCardOrder(columnId, newCardId)
 
     return newCard
   } catch (error) {

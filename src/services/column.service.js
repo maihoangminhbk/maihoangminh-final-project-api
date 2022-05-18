@@ -1,12 +1,21 @@
 import { ColumnModel } from '*/models/column.model'
 import { BoardModel } from '*/models/board.model'
+import { ObjectId } from 'mongodb'
+import { CardModel } from '*/models/card.model'
 const createNew = async (data) => {
   try {
-    const newColumn = await ColumnModel.createNew(data)
+    const result = await ColumnModel.createNew(data)
+
+    const newColumnId = result.insertedId
+
+    const newColumn = await ColumnModel.getOneById(newColumnId)
+
+    console.log(newColumn)
+    newColumn.cards = []
 
     // Push column to columnOrder in Board Collection
     const boardId = newColumn.boardId
-    const newColumnId = newColumn.insertedId
+
     await BoardModel.pushColumnOrder(boardId, newColumnId)
 
     return newColumn
@@ -22,8 +31,15 @@ const update = async (id, data) => {
       updatedAt: Date.now()
     }
 
-    const result = await ColumnModel.update(id, updateData)
-    return result
+    if (updateData._id) delete updateData._id
+    if (updateData.cards) delete updateData.cards
+
+    const updatedColumn = await ColumnModel.update(id, updateData)
+
+    if (updatedColumn._destroy) {
+      CardModel.deleteMany(updatedColumn.cardOrder)
+    }
+    return updatedColumn
   } catch (error) {
     throw new Error(error)
   }

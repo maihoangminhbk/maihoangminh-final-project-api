@@ -29,10 +29,37 @@ const createNew = async (data) => {
 
     const result = await getDB().collection(cardCollectionName).insertOne(insertValue)
 
-    return {
-      ...result,
-      columnId: insertValue.columnId.toString()
-    }
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const getOneById = async (id) => {
+  try {
+
+    const result = await getDB().collection(cardCollectionName).findOne({ _id: id })
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+/**
+ * 
+ * @param { Array card id } ids
+ */
+const deleteMany = async (ids) => {
+  try {
+
+    const transformIds = ids.map(i => ObjectId(i))
+    const result = await getDB().collection(cardCollectionName).updateMany(
+      { _id: { $in: transformIds } },
+      { $set: { _destroy: true } }
+    )
+    return result
 
   } catch (error) {
     throw new Error(error)
@@ -41,5 +68,7 @@ const createNew = async (data) => {
 
 export const CardModel = {
   cardCollectionName,
-  createNew
+  createNew,
+  getOneById,
+  deleteMany
 }

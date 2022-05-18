@@ -27,6 +27,18 @@ const createNew = async (data) => {
   }
 }
 
+const getOneById = async (id) => {
+  try {
+
+    const result = await getDB().collection(boardCollectionName).findOne({ _id: id })
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 /**
  *
  * @param {string} boardId
@@ -50,7 +62,10 @@ const pushColumnOrder = async (boardId, columnId) => {
 const getFullBoard = async (boardId) => {
   try {
     const result = await getDB().collection(boardCollectionName).aggregate([
-      { $match: { _id: ObjectId(boardId) } },
+      { $match: { 
+        _id: ObjectId(boardId),
+        _destroy: false
+      } },
       { $lookup: {
         from: ColumnModel.columnCollectionName,
         localField: '_id',
@@ -73,5 +88,6 @@ const getFullBoard = async (boardId) => {
 export const BoardModel = {
   createNew,
   getFullBoard,
-  pushColumnOrder
+  pushColumnOrder,
+  getOneById
 }
