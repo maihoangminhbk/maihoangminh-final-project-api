@@ -1,10 +1,10 @@
-import { BoardService } from '*/services/board.service'
+import { OwnershipService } from '*/services/ownership.service'
 import { HttpStatusCode } from '*/ultilities/constants'
 
 
 const createNew = async (req, res) => {
   try {
-    const result = await BoardService.createNew(req.body)
+    const result = await OwnershipService.createNew(req.body)
     console.log(result)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
@@ -14,11 +14,11 @@ const createNew = async (req, res) => {
   }
 }
 
-const getFullBoard = async (req, res) => {
+const getOwnershipByUserId = async (req, res) => {
   try {
-    const { id } = req.params
-    console.log('board controller - getfullboard', req.params)
-    const result = await BoardService.getFullBoard(id)
+    const { userId } = req.params
+    console.log('ownership controller - getOwnershipByUserId', req.params)
+    const result = await OwnershipService.getOwnershipByUserId(userId)
     console.log(result)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
@@ -30,8 +30,8 @@ const getFullBoard = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    const { id } = req.params
-    const result = await BoardService.update(id, req.body)
+    const { userId } = req.params
+    const result = await OwnershipService.update(userId, req.body)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({
@@ -41,8 +41,8 @@ const update = async (req, res) => {
 }
 
 
-export const BoardController = {
+export const OwnershipController = {
   createNew,
-  getFullBoard,
+  getOwnershipByUserId,
   update
 }

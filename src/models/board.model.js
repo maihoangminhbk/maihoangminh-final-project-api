@@ -27,11 +27,46 @@ const createNew = async (data) => {
   }
 }
 
+const update = async (id, data) => {
+  try {
+
+    const insertValue = { ...data }
+
+    const result = await getDB().collection(boardCollectionName).findOneAndUpdate(
+      { _id: ObjectId(id) },
+      { $set: insertValue },
+      { returnDocument : 'after', returnOriginal : false }
+    ).then(
+      updatedColumn => {
+        console.log(updatedColumn)
+        return updatedColumn
+      }
+    )
+
+    return result.value
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const getOneById = async (id) => {
+  try {
+
+    const result = await getDB().collection(boardCollectionName).findOne({ _id: id })
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 /**
- * 
- * @param {string} boardId 
- * @param {string} columnId 
- * @returns 
+ *
+ * @param {string} boardId
+ * @param {string} columnId
+ * @returns
  */
 const pushColumnOrder = async (boardId, columnId) => {
   try {
@@ -47,10 +82,13 @@ const pushColumnOrder = async (boardId, columnId) => {
   }
 }
 
-const getFullBoard = async (boardId) => {
+const getFullBoard = async (workplaceId) => {
   try {
     const result = await getDB().collection(boardCollectionName).aggregate([
-      { $match: { _id: ObjectId(boardId) } },
+      { $match: {
+        _id: ObjectId(workplaceId),
+        _destroy: false
+      } },
       { $lookup: {
         from: ColumnModel.columnCollectionName,
         localField: '_id',
@@ -73,5 +111,7 @@ const getFullBoard = async (boardId) => {
 export const BoardModel = {
   createNew,
   getFullBoard,
-  pushColumnOrder
+  pushColumnOrder,
+  getOneById,
+  update
 }
