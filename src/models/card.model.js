@@ -35,6 +35,34 @@ const createNew = async (data) => {
   }
 }
 
+const update = async (id, data) => {
+  try {
+
+    const insertValue = { ...data }
+
+    if (data.boardId) {
+      insertValue.boardId = ObjectId(data.boardId)
+      insertValue.columnId = ObjectId(data.columnId)
+    }
+
+    const result = await getDB().collection(cardCollectionName).findOneAndUpdate(
+      { _id: ObjectId(id) },
+      { $set: insertValue },
+      { returnDocument : 'after', returnOriginal : false }
+    ).then(
+      updatedColumn => {
+        console.log(updatedColumn)
+        return updatedColumn
+      }
+    )
+
+    return result.value
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const getOneById = async (id) => {
   try {
 
@@ -70,5 +98,6 @@ export const CardModel = {
   cardCollectionName,
   createNew,
   getOneById,
-  deleteMany
+  deleteMany,
+  update
 }

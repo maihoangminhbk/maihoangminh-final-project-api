@@ -3,9 +3,7 @@ import { HttpStatusCode } from '*/ultilities/constants'
 
 const createNew = async (req, res, next) => {
   const condition = Joi.object({
-    boardId: Joi.string().required(),
-    columnId: Joi.string().required(),
-    title: Joi.string().required().min(3).max(20).trim()
+    userId: Joi.string().required()
   })
 
   try {
@@ -20,9 +18,8 @@ const createNew = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const condition = Joi.object({
-    title: Joi.string().min(3).max(30).trim(),
-    boardId: Joi.string(),
-    columnId: Joi.string()
+    userId: Joi.string().required(),
+    workplaceOrder: Joi.array().items(Joi.string())
   })
 
   try {
@@ -38,7 +35,7 @@ const update = async (req, res, next) => {
   }
 }
 
-export const CardValidation = {
+export const OwnershipValidation = {
   createNew,
   update
 }
