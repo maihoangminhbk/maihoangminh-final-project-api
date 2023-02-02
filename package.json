@@ -45,6 +45,6 @@
     "babel-eslint": "^10.1.0",
     "babel-plugin-module-resolver": "^4.1.0",
     "eslint": "^8.15.0",
-    "nodemon": "^2.0.16"
+    "nodemon": "^2.0.20"
   }
 }

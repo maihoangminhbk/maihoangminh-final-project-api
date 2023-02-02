@@ -4,6 +4,7 @@ import { HttpStatusCode } from '*/ultilities/constants'
 
 const createNew = async (req, res) => {
   try {
+    req.body.userId = req.params.userId
     const result = await WorkplaceService.createNew(req.body)
     console.log(result)
     res.status(HttpStatusCode.OK).json(result)

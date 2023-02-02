@@ -26,7 +26,7 @@ const login = async (data) => {
     }
 
 
-    const token = jwt.sign( { email: email, id: oldUser._id }, secret, { expiresIn: '1h' } )
+    const token = jwt.sign( { email: email, id: oldUser._id }, secret, { expiresIn: '24h' } )
 
     return { ...oldUser, 'token' : token }
   } catch (error) {
@@ -58,11 +58,6 @@ const signup = async (data) => {
 
     const userId = newUser._id.toString()
     console.log('user service - sign up - newUser', userId)
-    const ownershipData = {
-      userId: userId
-    }
-
-    const createdOwnership = await OwnershipService.createNew(ownershipData)
 
     const workplaceData = {
       userId: userId,
@@ -71,10 +66,6 @@ const signup = async (data) => {
 
     const createdWorkplace = await WorkplaceService.createNew(workplaceData)
 
-
-    const updatedOwnership = await OwnershipService.pushWorkplaceOrder(userId, createdWorkplace._id.toString())
-
-    console.log('user service - sign up - updatedOwnership', updatedOwnership)
     // newBoard.columns = []
 
     return { ...newUser, 'token' : token }

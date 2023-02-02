@@ -19,12 +19,25 @@ const validateSchema = async (data) => {
 const createNew = async (data) => {
   try {
     console.log('ownership model - createNew - data', data)
-    const validatedValue = await validateSchema(data)
+
+    let validateValue = {
+      ...data
+    }
+    if (validateValue.workplaceId) delete validateValue.workplaceId
+
+    validateValue = await validateSchema(validateValue)
+
+    console.log('ownership model - createNew - data', data)
+    console.log('ownership model - createNew - validateValue', validateValue)
 
     const insertValue = {
-      ...validatedValue,
-      userId: ObjectId(validatedValue.userId)
+      ...validateValue,
+      userId: ObjectId(data.userId)
     }
+
+
+    console.log('ownership model - createNew - insertValue', insertValue)
+
     const result = await getDB().collection(ownershipCollectionName).insertOne(insertValue)
     return result
   } catch (error) {
@@ -80,6 +93,8 @@ const pushWorkplaceOrder = async (userId, workplaceId) => {
       { $push: { workplaceOrder: workplaceId } },
       { returnOriginal: false }
     )
+
+    console.log('workplace model - pushWorkplaceOrder - result', result)
 
     return result.value
   } catch (error) {

@@ -3,7 +3,7 @@ import { HttpStatusCode } from '*/ultilities/constants'
 
 const createNew = async (req, res, next) => {
   const condition = Joi.object({
-    userId: Joi.string().required()
+    workplaceId: Joi.string().required()
   })
 
   try {

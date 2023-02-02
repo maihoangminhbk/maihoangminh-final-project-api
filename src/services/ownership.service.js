@@ -3,16 +3,41 @@ import { OwnershipModel } from '*/models/ownership.model'
 import { cloneDeep } from 'lodash'
 const createNew = async (data) => {
   try {
-    const result = await OwnershipModel.createNew(data)
+    const ownership = await OwnershipModel.getOwnershipByUserId(data.userId)
+    console.log('onwership service - ownership', ownership)
+    let result
+    if (!ownership) {
+      result = await OwnershipModel.createNew(data)
+      // const newOwnershipId = result.insertedId
 
-    const newOwnershipId = result.insertedId
+      // await OwnershipModel.getOneById(newOwnershipId)
 
-    const newOwnership = await OwnershipModel.getOneById(newOwnershipId)
+      const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId)
+      return updatedOwnership
+    }
 
-    return newOwnership
+    if (ownership && ownership.workplaceOrder.includes(data.workplaceId)) {
+      throw new Error('Workplace exist')
+    } else {
+      throw new Error('Ownership exist')
+    }
+
   } catch (error) {
     throw new Error(error)
   }
+}
+
+const addWorkplaceToOwnership = async (data) => {
+  const ownership = await OwnershipModel.getOwnershipByUserId(data.userId)
+  console.log('onwership service - addWorkplaceToOwnership - ownership', ownership)
+
+  if (!ownership) {
+    throw new Error('Ownership exist')
+  }
+
+  const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId)
+  return updatedOwnership
+
 }
 
 const getOwnershipByUserId = async (userId) => {
@@ -48,6 +73,9 @@ const update = async (userId, data) => {
 
 const pushWorkplaceOrder = async (userId, workplaceId) => {
   try {
+
+    console.log('onwership service - pushWorkplaceOrder - data.userId', userId)
+    console.log('onwership service - pushWorkplaceOrder - data.workplaceId', workplaceId)
     const updateOwnership = await OwnershipModel.pushWorkplaceOrder(userId, workplaceId)
 
     return updateOwnership
@@ -60,5 +88,6 @@ export const OwnershipService = {
   createNew,
   getOwnershipByUserId,
   update,
-  pushWorkplaceOrder
+  pushWorkplaceOrder,
+  addWorkplaceToOwnership
 }

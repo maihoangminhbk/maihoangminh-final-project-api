@@ -4,6 +4,8 @@ import { HttpStatusCode } from '*/ultilities/constants'
 
 const createNew = async (req, res) => {
   try {
+    req.body.userId = req.params.userId
+    console.log('ownership controller - createNew - req body', req.body)
     const result = await OwnershipService.createNew(req.body)
     console.log(result)
     res.status(HttpStatusCode.OK).json(result)

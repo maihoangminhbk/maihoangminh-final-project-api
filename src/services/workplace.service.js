@@ -1,18 +1,35 @@
 import { WorkplaceModel } from '*/models/workplace.model'
 import { BoardService } from '*/services/board.service'
+import { OwnershipService } from '*/services/ownership.service'
 // import { cloneDeep } from 'lodash'
 const createNew = async (data) => {
   try {
 
     const result = await WorkplaceModel.createNew(data)
 
+    const newWorkplaceId = result.insertedId
+
+    console.log('workplace service - createNew - workplace result', result)
+
+    // Create ownership
+    const ownershipData = {
+      userId: data.userId,
+      workplaceId: newWorkplaceId.toString()
+    }
+
+    const createdOwnership = await OwnershipService.createNew(ownershipData)
+
+    console.log('user service - sign up - createdOwnership', createdOwnership)
+
+    // Create Board
     const boardData = {
-      title: 'My board'
+      title: 'My board',
+      workplaceId: newWorkplaceId.toString()
     }
 
     const createdBoard = await BoardService.createNew(boardData)
 
-    const newWorkplaceId = result.insertedId
+    
 
     boardData.boardId = createdBoard._id.toString()
 
