@@ -27,6 +27,19 @@ const signup = async (req, res) => {
   }
 }
 
+const activate = async (req, res) => {
+  try {
+    console.log('user controller - activate - req', req.body)
+    const result = await UserService.activate(req.body)
+    console.log(result)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER).json({
+      errors: error.message
+    })
+  }
+}
+
 // const getFullBoard = async (req, res) => {
 //   try {
 //     const { id } = req.params
@@ -56,7 +69,8 @@ const signup = async (req, res) => {
 
 export const UserController = {
   login,
-  signup
+  signup,
+  activate
   // getFullBoard,
   // update
 }
