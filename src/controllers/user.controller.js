@@ -1,76 +1,37 @@
 import { UserService } from '*/services/user.service'
 import { HttpStatusCode } from '*/ultilities/constants'
 
-
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const result = await UserService.login(req.body)
     console.log(result)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
-    res.status(HttpStatusCode.INTERNAL_SERVER).json({
-      errors: error.message
-    })
+    next(error)
   }
 }
 
-const signup = async (req, res) => {
+const signup = async (req, res, next) => {
   try {
     console.log(req.body)
     const result = await UserService.signup(req.body)
-    console.log(result)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
-    res.status(HttpStatusCode.INTERNAL_SERVER).json({
-      errors: error.message
-    })
+    next(error)
   }
 }
 
-const activate = async (req, res) => {
+const activate = async (req, res, next) => {
   try {
-    console.log('user controller - activate - req', req.body)
     const result = await UserService.activate(req.body)
-    console.log(result)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
-    res.status(HttpStatusCode.INTERNAL_SERVER).json({
-      errors: error.message
-    })
+    next(error)
   }
 }
-
-// const getFullBoard = async (req, res) => {
-//   try {
-//     const { id } = req.params
-//     console.log('board controller - getfullboard', req.params)
-//     const result = await BoardService.getFullBoard(id)
-//     console.log(result)
-//     res.status(HttpStatusCode.OK).json(result)
-//   } catch (error) {
-//     res.status(HttpStatusCode.INTERNAL_SERVER).json({
-//       errors: error.message
-//     })
-//   }
-// }
-
-// const update = async (req, res) => {
-//   try {
-//     const { id } = req.params
-//     const result = await BoardService.update(id, req.body)
-//     res.status(HttpStatusCode.OK).json(result)
-//   } catch (error) {
-//     res.status(HttpStatusCode.INTERNAL_SERVER).json({
-//       errors: error.message
-//     })
-//   }
-// }
-
 
 export const UserController = {
   login,
   signup,
   activate
-  // getFullBoard,
-  // update
 }

@@ -1,15 +1,36 @@
 import { HttpStatusCode } from '../constants'
 import { BaseError } from './baseError'
 
-export class Api404Error extends BaseError {
+export class NotFound404Error extends BaseError {
   constructor (
-    name,
+    description,
     statusCode = HttpStatusCode.NOT_FOUND,
-    description = 'Not found.',
+    name = 'Not found',
     isOperational = true
   ) {
-    super(name, statusCode, isOperational, description)
+    super(description, name, statusCode, isOperational)
   }
 }
 
+export class Conflict409Error extends BaseError {
+  constructor (
+    description,
+    statusCode = HttpStatusCode.CONFLICT,
+    name = 'Conflict',
+    isOperational = true
+  ) {
+    super(description, name, statusCode, isOperational)
+  }
+}
+
+export class Unauthorized401Error extends BaseError {
+  constructor (
+    description,
+    statusCode = HttpStatusCode.UNAUTHORIZED,
+    name = 'Unauthorized',
+    isOperational = true
+  ) {
+    super(description, name, statusCode, isOperational)
+  }
+}
 

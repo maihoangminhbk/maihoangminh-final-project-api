@@ -8,7 +8,6 @@ import { workplaceRoutes } from './workplace.route'
 import { ownershipRoutes } from './ownership.route'
 
 import { logError, returnError, logErrorMiddleware } from '*/middlewares/errorsHandler'
-import { Api404Error } from '*/ultilities/errorsHandle/APIErrors'
 
 const router = express.Router()
 
