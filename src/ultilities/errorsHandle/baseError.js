@@ -1,5 +1,5 @@
 export class BaseError extends Error {
-  constructor (name, statusCode, isOperational, description) {
+  constructor (description, name, statusCode, isOperational) {
     super(description)
 
     Object.setPrototypeOf(this, new.target.prototype)
