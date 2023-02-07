@@ -15,13 +15,13 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-export const setOptions = (subject, message, receiver) => {
+export const setOptions = (subject, content, describe, receiver) => {
   const options = {
     from: `Minh <${env.MAILER_USER}>`, // sender address
     to: receiver, // receiver email
     subject: subject, // Subject line
-    text: message,
-    html: HTML_TEMPLATE(message)
+    text: content,
+    html: HTML_TEMPLATE(content, describe)
   }
   return options
 }

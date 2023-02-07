@@ -9,6 +9,7 @@ const userCollectionSchema = Joi.object({
   email: Joi.string().required().min(3).trim(),
   password: Joi.string().required().min(3).trim(),
   active: Joi.boolean().default(false),
+  cover: Joi.string().default(null),
   active_code: Joi.string().min(3).trim().default(null),
   reset_code: Joi.string().min(3).trim().default(null),
   createdAt: Joi.date().timestamp().default(Date.now()),

@@ -1,6 +1,6 @@
 // an email template that can be used with Nodemailer to send emails
 
-const HTML_TEMPLATE = (text) => {
+const HTML_TEMPLATE = (content, describe) => {
   return `
       <!DOCTYPE html>
       <html>
@@ -35,10 +35,10 @@ const HTML_TEMPLATE = (text) => {
           <div class="container">
             <div class="email">
               <div class="email-header">
-                <h1>${text}</h1>
+                <h1>${content}</h1>
               </div>
               <div class="email-body">
-                <p>This is code. Please verify your email address</p>
+                <p>${describe}</p>
               </div>
             </div>
           </div>

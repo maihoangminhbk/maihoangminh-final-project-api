@@ -1,6 +1,6 @@
 import express from 'express'
 import { UserController } from '*/controllers/user.controller'
-import { BoardValidation } from '*/validations/board.validation'
+import { UserValidation } from '*/validations/user.validation'
 
 const router = express.Router()
 
@@ -14,6 +14,9 @@ router.route('/signup')
 
 router.route('/activate')
   .post(UserController.activate)
+
+router.route('/login/google')
+  .post(UserValidation.loginWithGoogle, UserController.loginWithGoogle)
 
 // router.route('/:id')
 //   .get(BoardController.getFullBoard)

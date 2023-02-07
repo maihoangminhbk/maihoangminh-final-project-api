@@ -39,6 +39,53 @@ const login = async (data) => {
   return { ...oldUser, 'token' : token }
 }
 
+const loginWithGoogle = async (data) => {
+  const { email, name, cover } = data
+
+
+  const oldUser = await UserModel.getOneByEmail(email)
+
+  if (!oldUser) {
+    const password = makeId(6)
+
+    SENDMAIL(setOptions('Create account', password, 'This is new password. You can login by email and this password later.', email), () => {
+      console.log('Email sent successfully')
+    })
+
+    const hashPassword = await bcrypt.hash(password, 12)
+
+    const insertData = {
+      name: name,
+      email: email,
+      password: hashPassword,
+      cover: cover,
+      active: true
+    }
+
+    await UserModel.createNew(insertData)
+
+
+    const newUser = await UserModel.getOneByEmail(email)
+
+    const userId = newUser._id.toString()
+
+    const workplaceData = {
+      userId: userId,
+      title: 'My workplace'
+    }
+
+    await WorkplaceService.createNew(workplaceData)
+
+    const token = jwt.sign( { email: email, id: userId }, secret, { expiresIn: '24h' } )
+
+    return { ...newUser, 'token' : token }
+  }
+
+  const token = jwt.sign( { email: email, id: oldUser._id }, secret, { expiresIn: '24h' } )
+
+  return { ...oldUser, 'token' : token }
+}
+
 const signup = async (data) => {
 
   const { name, email, password } = data
@@ -52,7 +99,7 @@ const signup = async (data) => {
   data.password = await bcrypt.hash(password, 12)
   const active_code = makeId(6)
 
-  SENDMAIL(setOptions('Active account', active_code, email), () => {
+  SENDMAIL(setOptions('Active account', active_code, 'This is verify code. Please verify your account.', email), () => {
     console.log('Email sent successfully')
   })
 
@@ -116,5 +163,6 @@ const activate = async (data) => {
 export const UserService = {
   login,
   signup,
-  activate
+  activate,
+  loginWithGoogle
 }

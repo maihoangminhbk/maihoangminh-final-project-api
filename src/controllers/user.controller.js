@@ -11,6 +11,16 @@ const login = async (req, res, next) => {
   }
 }
 
+const loginWithGoogle = async (req, res, next) => {
+  try {
+    const result = await UserService.loginWithGoogle(req.body)
+    console.log(result)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const signup = async (req, res, next) => {
   try {
     console.log(req.body)
@@ -33,5 +43,6 @@ const activate = async (req, res, next) => {
 export const UserController = {
   login,
   signup,
-  activate
+  activate,
+  loginWithGoogle
 }

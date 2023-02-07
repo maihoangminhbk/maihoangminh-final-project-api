@@ -1,6 +1,17 @@
 import { HttpStatusCode } from '../constants'
 import { BaseError } from './baseError'
 
+
+export class BadRequest400Error extends BaseError {
+  constructor (
+    description,
+    statusCode = HttpStatusCode.BAD_REQUEST,
+    name = 'Bad request',
+    isOperational = true
+  ) {
+    super(description, name, statusCode, isOperational)
+  }
+}
 export class NotFound404Error extends BaseError {
   constructor (
     description,
