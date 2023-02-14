@@ -48,8 +48,6 @@ router.use('/workplaces', workplaceRoutes)
  */
 router.use('/ownership', ownershipRoutes)
 
-router.use(logError)
-router.use(logErrorMiddleware)
 router.use(returnError)
 
 export const apiV1 = router

@@ -12,6 +12,30 @@ export class BadRequest400Error extends BaseError {
     super(description, name, statusCode, isOperational)
   }
 }
+
+export class Unauthorized401Error extends BaseError {
+  constructor (
+    description,
+    statusCode = HttpStatusCode.UNAUTHORIZED,
+    name = 'Unauthorized',
+    isOperational = true
+  ) {
+    super(description, name, statusCode, isOperational)
+  }
+}
+
+export class NotPermission403Error extends BaseError {
+  constructor (
+    description,
+    statusCode = HttpStatusCode.NOT_PERMISSION,
+    name = 'Not permission',
+    isOperational = true
+  ) {
+    super(description, name, statusCode, isOperational)
+  }
+}
+
+
 export class NotFound404Error extends BaseError {
   constructor (
     description,
@@ -28,17 +52,6 @@ export class Conflict409Error extends BaseError {
     description,
     statusCode = HttpStatusCode.CONFLICT,
     name = 'Conflict',
-    isOperational = true
-  ) {
-    super(description, name, statusCode, isOperational)
-  }
-}
-
-export class Unauthorized401Error extends BaseError {
-  constructor (
-    description,
-    statusCode = HttpStatusCode.UNAUTHORIZED,
-    name = 'Unauthorized',
     isOperational = true
   ) {
     super(description, name, statusCode, isOperational)

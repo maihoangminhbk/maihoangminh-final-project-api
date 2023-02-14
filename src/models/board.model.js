@@ -43,7 +43,6 @@ const update = async (id, data) => {
       { returnDocument : 'after', returnOriginal : false }
     ).then(
       updatedColumn => {
-        console.log(updatedColumn)
         return updatedColumn
       }
     )
@@ -87,11 +86,11 @@ const pushColumnOrder = async (boardId, columnId) => {
   }
 }
 
-const getFullBoard = async (workplaceId) => {
+const getFullBoard = async (boardId) => {
   try {
     const result = await getDB().collection(boardCollectionName).aggregate([
       { $match: {
-        _id: ObjectId(workplaceId),
+        _id: ObjectId(boardId),
         _destroy: false
       } },
       { $lookup: {
@@ -106,7 +105,6 @@ const getFullBoard = async (workplaceId) => {
         as: 'cards' } }
     ]).toArray()
 
-    console.log(result)
     return result[0] || {}
   } catch (error) {
     throw new Error(error)

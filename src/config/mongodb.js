@@ -5,11 +5,6 @@ require('dotenv').config()
 let dbInstance = null
 
 export const connectDB = async () => {
-  console.log('dotenv', process.env) // remove this after you've confirmed it is working
-  console.log('tessssssst')
-  console.log('@@@@@@@@@@@@@', env)
-
-
   const client = new MongoClient(env.MONGODB_URI, {
     useUnifiedTopology: true,
     useNewURLParser: true

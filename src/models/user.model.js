@@ -34,9 +34,7 @@ const getOneByEmail = async (email) => {
 
 const createNew = async (data) => {
   try {
-    console.log('usermodel createNew data', data)
     const value = await validateSchema(data)
-    console.log('usermodel createNew value', value)
     const result = await getDB().collection(userCollectionName).insertOne(value)
     return result
   } catch (error) {
@@ -127,7 +125,8 @@ const createNew = async (data) => {
 
 export const UserModel = {
   getOneByEmail,
-  createNew
+  createNew,
+  userCollectionName
   // getFullBoard,
   // pushColumnOrder,
   // getOneById,

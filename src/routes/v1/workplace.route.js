@@ -11,5 +11,10 @@ router.route('/')
 router.route('/:id')
   .get(auth, WorkplaceController.getWorkplace)
 //   .put(WorkplaceValidation.update, WorkplaceController.update)
+router.route('/:id/add-user')
+  .post(auth, WorkplaceController.addUser)
+
+router.route('/:id/users')
+  .get(auth, WorkplaceController.getUsers)
 
 export const workplaceRoutes = router

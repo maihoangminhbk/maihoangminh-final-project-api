@@ -4,7 +4,6 @@ import { cloneDeep } from 'lodash'
 const createNew = async (data) => {
   try {
     const ownership = await OwnershipModel.getOwnershipByUserId(data.userId)
-    console.log('onwership service - ownership', ownership)
     let result
     if (!ownership) {
       result = await OwnershipModel.createNew(data)
@@ -12,7 +11,7 @@ const createNew = async (data) => {
 
       // await OwnershipModel.getOneById(newOwnershipId)
 
-      const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId)
+      const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId, true)
       return updatedOwnership
     }
 
@@ -29,13 +28,12 @@ const createNew = async (data) => {
 
 const addWorkplaceToOwnership = async (data) => {
   const ownership = await OwnershipModel.getOwnershipByUserId(data.userId)
-  console.log('onwership service - addWorkplaceToOwnership - ownership', ownership)
 
   if (!ownership) {
     throw new Error('Ownership exist')
   }
 
-  const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId)
+  const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId, false)
   return updatedOwnership
 
 }
@@ -71,12 +69,10 @@ const update = async (userId, data) => {
   }
 }
 
-const pushWorkplaceOrder = async (userId, workplaceId) => {
+const pushWorkplaceOrder = async (userId, workplaceId, active) => {
   try {
 
-    console.log('onwership service - pushWorkplaceOrder - data.userId', userId)
-    console.log('onwership service - pushWorkplaceOrder - data.workplaceId', workplaceId)
-    const updateOwnership = await OwnershipModel.pushWorkplaceOrder(userId, workplaceId)
+    const updateOwnership = await OwnershipModel.pushWorkplaceOrder(userId, workplaceId, active)
 
     return updateOwnership
   } catch (error) {

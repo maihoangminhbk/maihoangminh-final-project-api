@@ -7,7 +7,6 @@ const createNew = async (req, res, next) => {
     title: Joi.string().required().min(3).max(30).trim()
   })
 
-  console.log('column validate - req', req.body)
 
   try {
     await condition.validateAsync(req.body, { abortEarly: false })

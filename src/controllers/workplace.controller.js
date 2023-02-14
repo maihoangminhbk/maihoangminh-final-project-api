@@ -6,7 +6,6 @@ const createNew = async (req, res) => {
   try {
     req.body.userId = req.params.userId
     const result = await WorkplaceService.createNew(req.body)
-    console.log(result)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({
@@ -18,9 +17,7 @@ const createNew = async (req, res) => {
 const getWorkplace = async (req, res) => {
   try {
     const { id } = req.params
-    console.log('workplace controller - getWorkplace', req.params)
     const result = await WorkplaceService.getWorkplace(id)
-    console.log(result)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({
@@ -41,9 +38,28 @@ const update = async (req, res) => {
   }
 }
 
+const addUser = async (req, res, next) => {
+  try {
+    const result = await WorkplaceService.addUser(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getUsers = async (req, res, next) => {
+  try {
+    const result = await WorkplaceService.getUsers(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
 
 export const WorkplaceController = {
   createNew,
   getWorkplace,
-  update
+  update,
+  addUser,
+  getUsers
 }

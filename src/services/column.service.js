@@ -10,7 +10,6 @@ const createNew = async (data) => {
 
     const newColumn = await ColumnModel.getOneById(newColumnId)
 
-    console.log(newColumn)
     newColumn.cards = []
 
     // Push column to columnOrder in Board Collection

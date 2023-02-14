@@ -6,7 +6,12 @@ import { getDB } from '*/config/mongodb'
 const ownershipCollectionName = 'ownership'
 const ownershipCollectionSchema = Joi.object({
   userId: Joi.string().required().min(3).trim(),
-  workplaceOrder: Joi.array().items(Joi.string()).default([]),
+  workplaceOrder: Joi.array().items(
+    Joi.object({
+      workplaceId: Joi.string().required().min(3).trim(),
+      active: Joi.boolean().default(false)
+    })
+  ).default([]),
   createdAt: Joi.date().timestamp().default(Date.now()),
   updatedAt: Joi.date().timestamp().default(Date.now()),
   _destroy: Joi.boolean().default(false)
@@ -18,7 +23,6 @@ const validateSchema = async (data) => {
 
 const createNew = async (data) => {
   try {
-    console.log('ownership model - createNew - data', data)
 
     let validateValue = {
       ...data
@@ -27,16 +31,12 @@ const createNew = async (data) => {
 
     validateValue = await validateSchema(validateValue)
 
-    console.log('ownership model - createNew - data', data)
-    console.log('ownership model - createNew - validateValue', validateValue)
-
     const insertValue = {
       ...validateValue,
       userId: ObjectId(data.userId)
     }
 
 
-    console.log('ownership model - createNew - insertValue', insertValue)
 
     const result = await getDB().collection(ownershipCollectionName).insertOne(insertValue)
     return result
@@ -56,7 +56,6 @@ const update = async (userId, data) => {
       { returnDocument : 'after', returnOriginal : false }
     ).then(
       updatedColumn => {
-        console.log(updatedColumn)
         return updatedColumn
       }
     )
@@ -86,15 +85,18 @@ const getOneById = async (id) => {
  * @param {string} workplaceId
  * @returns
  */
-const pushWorkplaceOrder = async (userId, workplaceId) => {
+const pushWorkplaceOrder = async (userId, workplaceId, active) => {
   try {
+    const insert_data = {
+      workplaceId: ObjectId(workplaceId),
+      active: active
+    }
+
     const result = await getDB().collection(ownershipCollectionName).findOneAndUpdate(
       { userId: ObjectId(userId) },
-      { $push: { workplaceOrder: workplaceId } },
+      { $push: { workplaceOrder: insert_data } },
       { returnOriginal: false }
     )
-
-    console.log('workplace model - pushWorkplaceOrder - result', result)
 
     return result.value
   } catch (error) {
@@ -104,9 +106,7 @@ const pushWorkplaceOrder = async (userId, workplaceId) => {
 
 const getOwnershipByUserId = async (userId) => {
   try {
-    console.log('ownership model - getOwnershipByUserId - userId', userId)
     const result = await getDB().collection(ownershipCollectionName).findOne({ userId: ObjectId(userId) })
-    console.log('ownership model - getOwnershipByUserId - result', result)
     return result
   } catch (error) {
     throw new Error(error)
