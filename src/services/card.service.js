@@ -6,10 +6,8 @@ const createNew = async (data) => {
     const result = await CardModel.createNew(data)
     const newCardId = result.insertedId
 
-    console.log(newCardId)
 
     const newCard = await CardModel.getOneById(newCardId)
-    console.log(newCard)
     // Push card id to card order in column collection
     const columnId = newCard.columnId
     await ColumnModel.pushCardOrder(columnId, newCardId)

@@ -1,6 +1,8 @@
 import { WorkplaceModel } from '*/models/workplace.model'
 import { BoardService } from '*/services/board.service'
 import { OwnershipService } from '*/services/ownership.service'
+import { BadRequest400Error, Conflict409Error, NotPermission403Error } from '../ultilities/errorsHandle/APIErrors'
+import { UserModel } from '*/models/user.model'
 // import { cloneDeep } from 'lodash'
 const createNew = async (data) => {
   try {
@@ -9,7 +11,6 @@ const createNew = async (data) => {
 
     const newWorkplaceId = result.insertedId
 
-    console.log('workplace service - createNew - workplace result', result)
 
     // Create ownership
     const ownershipData = {
@@ -19,7 +20,6 @@ const createNew = async (data) => {
 
     const createdOwnership = await OwnershipService.createNew(ownershipData)
 
-    console.log('user service - sign up - createdOwnership', createdOwnership)
 
     // Create Board
     const boardData = {
@@ -29,15 +29,12 @@ const createNew = async (data) => {
 
     const createdBoard = await BoardService.createNew(boardData)
 
-    
 
     boardData.boardId = createdBoard._id.toString()
 
-    console.log('workplaceservice - create new- boarddata', boardData)
 
     const updatedWorkplace = await pushBoardOrder(newWorkplaceId, boardData)
 
-    console.log('workplaceservice - create new- updatedWorkplace', updatedWorkplace)
     const newWorkplace = await WorkplaceModel.getOneById(newWorkplaceId)
 
     return newWorkplace
@@ -89,10 +86,55 @@ const pushBoardOrder = async (workplaceId, board) => {
   }
 }
 
+const addUser = async (req) => {
+  const { id, userId } = req.params
+  const { email, role } = req.body
+
+  const workplace = await WorkplaceModel.getOneByOwnerAndId(id, userId)
+
+  if (!workplace) {
+    throw new NotPermission403Error('User not owner workplace')
+  }
+
+  const userAdded = await UserModel.getOneByEmail(email)
+
+  if (!userAdded) {
+    throw new BadRequest400Error('User with email not exist')
+  }
+
+  const isUserExist = await WorkplaceModel.checkUserExist(id, userId)
+
+
+  if (isUserExist) {
+    throw new Conflict409Error('User permission exist in workplace')
+  }
+
+  await OwnershipService.pushWorkplaceOrder(userAdded._id.toString(), id, true)
+
+
+  const insertData = {
+    userId: userAdded._id.toString(),
+    role: role
+  }
+
+  const result = await WorkplaceModel.addUser(id, insertData)
+
+  return result
+}
+
+const getUsers = async (req) => {
+  const { id } = req.params
+  const users = await WorkplaceModel.getUsers(id)
+
+  return users
+}
+
 export const WorkplaceService = {
   createNew,
   getWorkplace,
   update,
-  pushBoardOrder
+  pushBoardOrder,
+  addUser,
+  getUsers
 }
 

@@ -5,7 +5,6 @@ import { HttpStatusCode } from '*/ultilities/constants'
 const createNew = async (req, res) => {
   try {
     const result = await BoardService.createNew(req.body)
-    console.log(result)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({
@@ -17,9 +16,7 @@ const createNew = async (req, res) => {
 const getFullBoard = async (req, res) => {
   try {
     const { id } = req.params
-    console.log('board controller - getfullboard', req.params)
     const result = await BoardService.getFullBoard(id)
-    console.log(result)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({

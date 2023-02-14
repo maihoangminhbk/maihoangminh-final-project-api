@@ -99,9 +99,11 @@ const signup = async (data) => {
   data.password = await bcrypt.hash(password, 12)
   const active_code = makeId(6)
 
-  SENDMAIL(setOptions('Active account', active_code, 'This is verify code. Please verify your account.', email), () => {
-    console.log('Email sent successfully')
-  })
+  console.log('active_code', active_code)
+
+  // SENDMAIL(setOptions('Active account', active_code, 'This is verify code. Please verify your account.', email), () => {
+  //   console.log('Email sent successfully')
+  // })
 
   data.active_code = await bcrypt.hash(active_code, 12)
 

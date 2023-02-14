@@ -51,7 +51,6 @@ const update = async (id, data) => {
       { returnDocument : 'after', returnOriginal : false }
     ).then(
       updatedColumn => {
-        console.log(updatedColumn)
         return updatedColumn
       }
     )

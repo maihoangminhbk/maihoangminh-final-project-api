@@ -1,11 +1,17 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { getDB } from '*/config/mongodb'
+import { UserModel } from '*/models/user.model'
 
 // Define workplace collection
 const workplaceCollectionName = 'workplaces'
 const workplaceCollectionSchema = Joi.object({
   userId: Joi.string().required().min(3).trim(),
+  users: Joi.array().items(Joi.object({
+    userId: Joi.string().required().min(3).trim().required(),
+    // Admin role: 1; User role: 0
+    role: Joi.number().integer().min(0).max(1).default(0)
+  })).default([]),
   title: Joi.string().required().min(3).max(20).trim(),
   cover: Joi.string().default(null),
   boardOrder: Joi.array().items(Joi.object({
@@ -18,8 +24,18 @@ const workplaceCollectionSchema = Joi.object({
   _destroy: Joi.boolean().default(false)
 })
 
+const permissionCollectionSchema = Joi.object({
+  userId: Joi.string().required().min(3).trim().required(),
+  // Admin role: 1; User role: 0
+  role: Joi.number().integer().min(0).max(1).default(0)
+})
+
 const validateSchema = async (data) => {
   return await workplaceCollectionSchema.validateAsync(data, { abortEarly: false })
+}
+
+const validatePermissionCollectionSchema = async (data) => {
+  return await permissionCollectionSchema.validateAsync(data, { abortEarly: false })
 }
 
 const createNew = async (data) => {
@@ -49,7 +65,6 @@ const update = async (id, data) => {
       { returnDocument : 'after', returnOriginal : false }
     ).then(
       updatedOwnership => {
-        console.log(updatedOwnership)
         return updatedOwnership
       }
     )
@@ -73,17 +88,42 @@ const getOneById = async (id) => {
   }
 }
 
-/**
- *
- * @param {string} workplaceId
- * @param {string} boardId
- * @returns
- */
-const pushBoardOrder = async (workplaceId, board) => {
+const getOneByOwnerAndId = async (workplaceId, userId) => {
   try {
+    const result = await getDB().collection(workplaceCollectionName).findOne({ _id: ObjectId(workplaceId), userId: ObjectId(userId) })
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const checkUserExist = async (workplaceId, userId) => {
+  try {
+    const result = await getDB().collection(workplaceCollectionName).findOne({
+      _id: ObjectId(workplaceId),
+      users: { $elemMatch: { userId: ObjectId(userId) } }
+    })
+
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const addUser = async (workplaceId, data) => {
+  try {
+
+    const validateValue = await validatePermissionCollectionSchema(data)
+
+    const insertData = { ...validateValue }
+    insertData.userId = ObjectId(insertData.userId)
+
     const result = await getDB().collection(workplaceCollectionName).findOneAndUpdate(
       { _id: ObjectId(workplaceId) },
-      { $push: { boardOrder: board } },
+      { $push: { users: insertData } },
       { returnOriginal: false }
     )
 
@@ -93,31 +133,81 @@ const pushBoardOrder = async (workplaceId, board) => {
   }
 }
 
-// const getWorkplace = async (boardId) => {
-//   try {
-//     const result = await getDB().collection(workplaceCollectionName).aggregate([
-//       { $match: {
-//         _id: ObjectId(boardId),
-//         _destroy: false
-//       } },
-//       { $lookup: {
-//         from: ColumnModel.columnCollectionName,
-//         localField: '_id',
-//         foreignField: 'workplaceId',
-//         as: 'boards' } }
-//     ]).toArray()
+const getUsers = async (workplaceId) => {
+  try {
+    // const result = await getDB().collection(workplaceCollectionName).findOne(
+    //   { _id: ObjectId(workplaceId) }
+    // )
 
-//     console.log(result)
-//     return result[0] || {}
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
+
+    const result = await getDB().collection(workplaceCollectionName).aggregate([
+      { $match: {
+        _id: ObjectId(workplaceId)
+      } },
+      { $lookup: {
+        from: UserModel.userCollectionName,
+        localField: 'users.userId',
+        foreignField: '_id',
+        as: 'usersInfo',
+        pipeline: [
+          { $project: {
+            name: 1,
+            email: 1,
+            cover: 1
+          } }
+        ]
+      } },
+      { $project: {
+        'usersInfo': 1,
+        'users.role' : 1
+      } }
+    ]).toArray()
+
+
+    const usersRoleList = result[0].users
+    let usersInfoList = result[0].usersInfo
+    usersInfoList = usersInfoList.map((user, index) => {
+      user = { ...user, role: usersRoleList[index].role }
+      return user
+    })
+
+    return usersInfoList
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+/**
+ *
+ * @param {string} workplaceId
+ * @param {string} boardId
+ * @returns
+ */
+const pushBoardOrder = async (workplaceId, board) => {
+  try {
+    const insertBoard = { ...board }
+    insertBoard.boardId = ObjectId(insertBoard.boardId)
+
+    const result = await getDB().collection(workplaceCollectionName).findOneAndUpdate(
+      { _id: ObjectId(workplaceId) },
+      { $push: { boardOrder: insertBoard } },
+      { returnOriginal: false }
+    )
+
+    return result.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
 export const WorkplaceModel = {
   createNew,
   // getFullBoard,
   pushBoardOrder,
   getOneById,
-  update
+  update,
+  getOneByOwnerAndId,
+  addUser,
+  checkUserExist,
+  getUsers
 }
