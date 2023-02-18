@@ -6,11 +6,12 @@ import { env } from '*/config/environment'
 import { apiV1 } from '*/routes/v1'
 import { BoardModel } from '*/models/board.model'
 
-import { Server } from 'socket.io'
-import http from 'http'
+import { io } from '*/socket/socketServer'
+import boardConnection from '*/socket/workplaces/board.workplace/boardConnection'
 
 const hostname = env.APP_HOST
 const port = env.APP_PORT
+const socketHost = env.SOCKET_HOST
 
 connectDB()
   .then(() => console.log('Connected successfully!'))
@@ -35,47 +36,11 @@ const bootServer = () => {
     res.sendFile(__dirname + '/test.html')
   })
 
-  const server = http.createServer(app)
-
-  server.listen(port, hostname, () => {
+  app.listen(port, hostname, () => {
     // eslint-disable-next-line no-console
     console.log(`Hello, Iam running at ${hostname}:${port}/`)
   })
 
-  const io = new Server(server,  {
-    cors: {
-      origin: 'http://localhost:3000'
-    }
-  })
-
-  io.of('/v1/board').on('connection', (socket) => {
-    console.log('a user connected to board socket server', socket.id)
-
-    socket.on('onColumnDrop', (arg) => {
-      console.log(arg)
-      socket.broadcast.emit('onColumnChange', arg)
-    })
-
-    socket.on('onColumnAdd', (arg) => {
-      console.log(arg)
-      socket.broadcast.emit('onColumnAdd', arg)
-    })
-
-    socket.on('onColumnUpdateState', (arg) => {
-      console.log(arg)
-      socket.broadcast.emit('onColumnUpdateState', arg)
-    })
-
-    socket.on('onCardDrop', (columnId, dropResult) => {
-      console.log(columnId, dropResult)
-      socket.broadcast.emit('onCardDrop', columnId, dropResult)
-    })
-
-    socket.on('disconnect', (reason) => {
-      console.log('reason', reason)
-    })
-
-  })
-
-  io.listen(5551)
+  // Socket server
+  io.of('/v1/board').on('connection', boardConnection)
 }

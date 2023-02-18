@@ -7,5 +7,7 @@ export const env = {
   DATABASE_NAME: process.env.DATABASE_NAME,
 
   MAILER_USER: process.env.MAILER_USER,
-  MAILER_PASSWORD: process.env.MAILER_PASSWORD
+  MAILER_PASSWORD: process.env.MAILER_PASSWORD,
+
+  SOCKET_HOST: process.env.SOCKET_HOST
 }
