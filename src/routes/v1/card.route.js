@@ -10,4 +10,7 @@ router.route('/')
 router.route('/:id')
   .put(CardValidation.update, CardController.update)
 
+router.route('/:id/image/upload')
+  .post(CardController.uploadImage)
+
 export const cardRoutes = router

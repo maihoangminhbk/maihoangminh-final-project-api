@@ -8,6 +8,7 @@ import { BoardModel } from '*/models/board.model'
 
 import { io } from '*/socket/socketServer'
 import boardConnection from '*/socket/workplaces/board.workplace/boardConnection'
+import chatbotConnection from '*/socket/workplaces/chatbot.workplace/chatbotConnection'
 
 const hostname = env.APP_HOST
 const port = env.APP_PORT
@@ -43,4 +44,5 @@ const bootServer = () => {
 
   // Socket server
   io.of('/v1/board').on('connection', boardConnection)
+  io.of('/v1/chatbot').on('connection', chatbotConnection)
 }

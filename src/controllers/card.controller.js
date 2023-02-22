@@ -25,7 +25,23 @@ const update = async (req, res) => {
   }
 }
 
+const uploadImage = async (req, res) => {
+  try {
+    const { id } = req.params
+    console.log('req id', id)
+    // console.log('req headers', req.he)
+    const result = await CardService.uploadImage(req, res)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER).json({
+      errors: error.message
+    })
+  }
+}
+
+
 export const CardController = {
   createNew,
-  update
+  update,
+  uploadImage
 }
