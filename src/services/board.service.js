@@ -1,5 +1,7 @@
 import { BoardModel } from '*/models/board.model'
 import { cloneDeep } from 'lodash'
+import { CardService } from '*/services/card.service'
+
 const createNew = async (data) => {
   try {
     const result = await BoardModel.createNew(data)
@@ -29,15 +31,33 @@ const getFullBoard = async (boardId) => {
     transformBoard.columns = transformBoard.columns.filter(column => !column._destroy)
 
     // Add card to each column
-    transformBoard.columns.forEach(column => {
+
+
+    for (let column of transformBoard.columns) {
       column.cards = transformBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
-    })
+
+      for (let card of column.cards) {
+        const url = await CardService.getImageUrl(card.cover)
+
+        card.imageUrl = url
+      }
+    }
+
+    // await column.cards.forEach(async card => {
+    //   console.log('board service test')
+    //   console.log('card.cover', card.cover)
+    //   const url = await CardService.getImageUrl(card.cover).then(() => {
+    //     card.imageUrl = url
+    //   })
+    //   console.log('card.imageUrl', card.imageUrl)
+
+    // })
 
     // Remove cards from board
     delete transformBoard.cards
 
     // Sort column by column order, sort card by card order: This step will pass to front-end
-
+    console.log('transformBoard.columns.cards', transformBoard.columns[0].cards)
 
     return transformBoard
   } catch (error) {

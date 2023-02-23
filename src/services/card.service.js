@@ -1,10 +1,12 @@
 import { CardModel } from '*/models/card.model'
 import { ColumnModel } from '*/models/column.model'
 import busboy from 'busboy'
+import randomImageName from '../ultilities/randomImageName'
 
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Upload } from '@aws-sdk/lib-storage'
+import { HttpStatusCode } from '*/ultilities/constants'
 
 
 const createNew = async (data) => {
@@ -41,21 +43,39 @@ const update = async (id, data) => {
   }
 }
 
+const getCard = async (cardId) => {
+  try {
+    const card = await CardModel.getCard(cardId)
+
+    if (!card) {
+      throw new Error('Card not found!')
+    }
+
+
+    return card
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const uploadImage = async (req, res) => {
   try {
-    console.log('Vao')
+
     const bb = busboy( { headers: req.headers })
-    bb.on('file', async (name, file, info) => {
+    console.log('card service check')
+    await bb.on('file', async (name, file, info) => {
       const { filename, encoding, mimeType } = info
 
-
+      console.log('card service check')
       const client = new S3Client({
         region: 'ap-southeast-1'
       })
+      console.log('card service check')
+      const imageName = randomImageName()
 
       const params = {
         Bucket: 'trello-image-server',
-        Key: filename,
+        Key: imageName,
         Body: file
       }
 
@@ -74,33 +94,44 @@ const uploadImage = async (req, res) => {
 
         await parallelUploads3.done()
 
-        console.log('parallelUploads3', parallelUploads3)
-        console.log('location', parallelUploads3.singleUploadResult.Location)
-
         const { id } = req.params
-        const location = parallelUploads3.singleUploadResult.Location
+        console.log('id', id)
+        const card = await getCard(id)
 
-        const getObjectParams = {
-          Bucket: 'trello-image-server',
-          Key: filename
+        if (card.cover) {
+          console.log('card.cover', card.cover)
+          deleteImage(card.cover)
         }
 
-        const command = new GetObjectCommand(getObjectParams)
-        const url = await getSignedUrl(client, command, { expiresIn: 3600 })
+
+        const url = await getImageUrl(imageName)
 
         const updateData = {
-          cover: url
+          cover: imageName
         }
+
+
         await update(id, updateData)
 
-        return url
+        const returnData = {
+          url: url
+        }
+
+        console.log('returnData', returnData)
+
+        res.status(HttpStatusCode.OK).json(returnData)
+        return returnData
       } catch (e) {
         console.log(e)
       }
     })
 
     bb.on('close', () => {
+      const returnData = {
+        url: 'test'
+      }
       console.log('Done parsing form!')
+      // res.status(501).json(returnData)
       // res.writeHead(303, { Connection: 'close', Location: '/' })
       // res.end()
     })
@@ -110,8 +141,59 @@ const uploadImage = async (req, res) => {
   }
 }
 
+const getImageUrl = async (imageName) => {
+  try {
+    console.log('test')
+
+    if (!imageName) return ''
+
+    const client = new S3Client({
+      region: 'ap-southeast-1'
+    })
+
+    const getObjectParams = {
+      Bucket: 'trello-image-server',
+      Key: imageName
+    }
+
+    const command = new GetObjectCommand(getObjectParams)
+    const url = await getSignedUrl(client, command, { expiresIn: 36000 }).catch((error) => {
+      console.log(error)
+    })
+
+    console.log('url', url)
+
+    return url
+  } catch (error) {
+    console.log('error', error)
+  }
+
+}
+
+const deleteImage = async (imageName) => {
+  if (!imageName) return
+
+  const client = new S3Client({
+    region: 'ap-southeast-1'
+  })
+
+  const getObjectParams = {
+    Bucket: 'trello-image-server',
+    Key: imageName
+  }
+
+  const command = new DeleteObjectCommand(getObjectParams)
+  try {
+    client.send(command)
+  }
+  catch (error) {
+    console.log('error', error)
+  }
+}
+
 export const CardService = {
   createNew,
   update,
-  uploadImage
+  uploadImage,
+  getImageUrl
 }

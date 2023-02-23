@@ -31,7 +31,8 @@ const uploadImage = async (req, res) => {
     console.log('req id', id)
     // console.log('req headers', req.he)
     const result = await CardService.uploadImage(req, res)
-    res.status(HttpStatusCode.OK).json(result)
+    console.log('result - test', result)
+    // res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({
       errors: error.message

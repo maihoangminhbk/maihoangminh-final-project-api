@@ -62,6 +62,18 @@ const update = async (id, data) => {
   }
 }
 
+const getCard = async (id) => {
+  try {
+
+    const result = await getDB().collection(cardCollectionName).findOne({ _id: ObjectId(id) })
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const getOneById = async (id) => {
   try {
 
@@ -98,5 +110,6 @@ export const CardModel = {
   createNew,
   getOneById,
   deleteMany,
-  update
+  update,
+  getCard
 }
