@@ -129,12 +129,32 @@ const getUsers = async (req) => {
   return users
 }
 
+const addBoard = async (workplaceId, data) => {
+  const boardData = {
+    title: data.title,
+    workplaceId: workplaceId
+  }
+
+  const createdBoard = await BoardService.createNew(boardData)
+
+
+  boardData.boardId = createdBoard._id.toString()
+
+
+  const updatedWorkplace = await pushBoardOrder(workplaceId, boardData)
+
+  const newWorkplace = await WorkplaceModel.getOneById(workplaceId)
+
+  return newWorkplace
+}
+
 export const WorkplaceService = {
   createNew,
   getWorkplace,
   update,
   pushBoardOrder,
   addUser,
-  getUsers
+  getUsers,
+  addBoard
 }
 

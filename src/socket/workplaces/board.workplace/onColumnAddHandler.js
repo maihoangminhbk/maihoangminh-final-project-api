@@ -1,11 +1,12 @@
+import { io } from '*/socket/socketServer'
+
 const onColumnAddListener = 'onColumnAdd'
 const onColumnAddEmit = 'onColumnAdd'
 
 const onColumnAddHandler = (socket) => {
 
-  const handleOnColumnAdd = (column) => {
-    console.log(column)
-    socket.broadcast.emit(onColumnAddEmit, column)
+  const handleOnColumnAdd = (boardId, column) => {
+    socket.to(boardId).emit(onColumnAddEmit, column)
   }
 
   socket.on(onColumnAddListener, handleOnColumnAdd)

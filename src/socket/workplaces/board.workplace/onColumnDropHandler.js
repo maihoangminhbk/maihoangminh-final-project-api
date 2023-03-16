@@ -3,9 +3,8 @@ const onColumnDropEmit = 'onColumnDrop'
 
 const onColumnDropHandler = (socket) => {
 
-  const handleOnColumnDrop = (dropResult) => {
-    console.log(dropResult)
-    socket.broadcast.emit(onColumnDropEmit, dropResult)
+  const handleOnColumnDrop = (boardId, dropResult) => {
+    socket.to(boardId).emit(onColumnDropEmit, dropResult)
   }
 
   socket.on(onColumnDropListener, handleOnColumnDrop)

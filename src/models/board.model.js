@@ -23,7 +23,7 @@ const createNew = async (data) => {
     const validatedValue = await validateSchema(data)
     const insertValue = {
       ...validatedValue,
-      workplaceId: ObjectId(validatedValue.boardId)
+      workplaceId: ObjectId(validatedValue.workplaceId)
     }
     const result = await getDB().collection(boardCollectionName).insertOne(insertValue)
     return result

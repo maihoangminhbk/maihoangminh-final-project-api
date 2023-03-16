@@ -16,5 +16,7 @@ router.route('/:id/add-user')
 
 router.route('/:id/users')
   .get(auth, WorkplaceController.getUsers)
+router.route('/:id/add-board')
+  .post(auth, WorkplaceController.addBoard)
 
 export const workplaceRoutes = router

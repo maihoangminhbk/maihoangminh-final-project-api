@@ -17,9 +17,8 @@ const createNew = async (data) => {
 
     const newCard = await CardModel.getOneById(newCardId)
     // Push card id to card order in column collection
-    const columnId = newCard.columnId
-    await ColumnModel.pushCardOrder(columnId, newCardId)
-
+    const columnId = newCard.columnId.toString()
+    await ColumnModel.pushCardOrder(columnId, newCardId.toString())
     return newCard
   } catch (error) {
     throw new Error(error)
@@ -62,15 +61,12 @@ const uploadImage = async (req, res) => {
   try {
 
     const bb = busboy( { headers: req.headers })
-    console.log('card service check')
     await bb.on('file', async (name, file, info) => {
       const { filename, encoding, mimeType } = info
 
-      console.log('card service check')
       const client = new S3Client({
         region: 'ap-southeast-1'
       })
-      console.log('card service check')
       const imageName = randomImageName()
 
       const params = {
@@ -95,11 +91,9 @@ const uploadImage = async (req, res) => {
         await parallelUploads3.done()
 
         const { id } = req.params
-        console.log('id', id)
         const card = await getCard(id)
 
         if (card.cover) {
-          console.log('card.cover', card.cover)
           deleteImage(card.cover)
         }
 
@@ -117,7 +111,6 @@ const uploadImage = async (req, res) => {
           url: url
         }
 
-        console.log('returnData', returnData)
 
         res.status(HttpStatusCode.OK).json(returnData)
         return returnData
@@ -143,7 +136,6 @@ const uploadImage = async (req, res) => {
 
 const getImageUrl = async (imageName) => {
   try {
-    console.log('test')
 
     if (!imageName) return ''
 
@@ -161,7 +153,6 @@ const getImageUrl = async (imageName) => {
       console.log(error)
     })
 
-    console.log('url', url)
 
     return url
   } catch (error) {
