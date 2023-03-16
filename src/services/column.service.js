@@ -13,9 +13,9 @@ const createNew = async (data) => {
     newColumn.cards = []
 
     // Push column to columnOrder in Board Collection
-    const boardId = newColumn.boardId
+    const boardId = newColumn.boardId.toString()
 
-    await BoardModel.pushColumnOrder(boardId, newColumnId)
+    await BoardModel.pushColumnOrder(boardId, newColumnId.toString())
 
     return newColumn
   } catch (error) {

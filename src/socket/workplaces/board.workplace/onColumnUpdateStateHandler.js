@@ -3,9 +3,8 @@ const onColumnUpdateStateEmit = 'onColumnUpdateState'
 
 const onColumnUpdateStateHandler = (socket) => {
 
-  const handleOnColumnUpdateState = (newColumnToUpdate) => {
-    console.log(newColumnToUpdate)
-    socket.broadcast.emit(onColumnUpdateStateEmit, newColumnToUpdate)
+  const handleOnColumnUpdateState = (boardId, newColumnToUpdate) => {
+    socket.to(boardId).emit(onColumnUpdateStateEmit, newColumnToUpdate)
   }
 
   socket.on(onColumnUpdateStateListener, handleOnColumnUpdateState)

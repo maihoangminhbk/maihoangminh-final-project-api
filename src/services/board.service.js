@@ -21,21 +21,23 @@ const createNew = async (data) => {
 const getFullBoard = async (boardId) => {
   try {
     const board = await BoardModel.getFullBoard(boardId)
+    // console.log('board', board)
 
-    if (!board || !board.columns) {
+    if (!board || !board.columns || !board.cards) {
       throw new Error('Board not found!')
     }
 
     const transformBoard = cloneDeep(board)
     // Filter deleted columns
     transformBoard.columns = transformBoard.columns.filter(column => !column._destroy)
-
     // Add card to each column
+    // console.log('transformBoard 1', transformBoard)
 
+    if (!transformBoard.columns || !transformBoard.columns.length) return transformBoard
 
     for (let column of transformBoard.columns) {
       column.cards = transformBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
-
+      if (!column.cards || !column.cards.length) continue
       for (let card of column.cards) {
         const url = await CardService.getImageUrl(card.cover)
 
@@ -57,7 +59,7 @@ const getFullBoard = async (boardId) => {
     delete transformBoard.cards
 
     // Sort column by column order, sort card by card order: This step will pass to front-end
-    console.log('transformBoard.columns.cards', transformBoard.columns[0].cards)
+    // console.log('transformBoard 2', transformBoard)
 
     return transformBoard
   } catch (error) {
