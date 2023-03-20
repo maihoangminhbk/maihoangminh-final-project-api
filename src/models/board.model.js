@@ -37,6 +37,10 @@ const update = async (id, data) => {
 
     const insertValue = { ...data }
 
+    if (insertValue.workplaceId) {
+      insertValue.workplaceId = ObjectId(insertValue.workplaceId)
+    }
+
     const result = await getDB().collection(boardCollectionName).findOneAndUpdate(
       { _id: ObjectId(id) },
       { $set: insertValue },

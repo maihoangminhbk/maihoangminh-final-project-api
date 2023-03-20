@@ -10,7 +10,7 @@ router.route('/')
   .post(auth, WorkplaceController.createNew)
 router.route('/:id')
   .get(auth, WorkplaceController.getWorkplace)
-//   .put(WorkplaceValidation.update, WorkplaceController.update)
+  .put(WorkplaceController.update)
 router.route('/:id/add-user')
   .post(auth, WorkplaceController.addUser)
 
