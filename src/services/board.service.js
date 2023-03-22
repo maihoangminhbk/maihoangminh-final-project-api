@@ -36,7 +36,7 @@ const getFullBoard = async (boardId) => {
     if (!transformBoard.columns || !transformBoard.columns.length) return transformBoard
 
     for (let column of transformBoard.columns) {
-      column.cards = transformBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
+      column.cards = transformBoard.cards.filter(card => card.columnId.toString() === column._id.toString() && !card._destroy)
       if (!column.cards || !column.cards.length) continue
       for (let card of column.cards) {
         const url = await CardService.getImageUrl(card.cover)
