@@ -59,6 +59,7 @@ const getUsers = async (req, res, next) => {
 const addBoard = async (req, res, next) => {
   try {
     const { id } = req.params
+    req.body.userId = req.params.userId
     const result = await WorkplaceService.addBoard(id, req.body)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {

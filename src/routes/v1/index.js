@@ -3,6 +3,7 @@ import { HttpStatusCode } from '*/ultilities/constants'
 import { boardRoutes } from './board.route'
 import { columnRoutes } from './column.route'
 import { cardRoutes } from './card.route'
+import { taskRoutes } from './task.route'
 import { userRoutes } from './user.route'
 import { workplaceRoutes } from './workplace.route'
 import { ownershipRoutes } from './ownership.route'
@@ -32,6 +33,11 @@ router.use('/columns', columnRoutes)
  * Card API
  */
 router.use('/cards', cardRoutes)
+
+/**
+ * Task API
+ */
+router.use('/tasks', taskRoutes)
 
 /**
  * User API

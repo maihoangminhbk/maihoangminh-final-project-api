@@ -10,5 +10,19 @@ export const HttpStatusCode = {
 
 export const WHITELIST_DOMAINS = [
   'http://localhost:3000',
-  'http://localhost:3001'
+  'https://localhost:3000',
+  'http://localhost:3001',
+  'https://localhost:3443'
 ]
+
+export const ROLE = {
+  WORKPLACE_ADMIN: 'workplace_admin',
+  WORKPLACE_OWNER: 'workplace_owner',
+  WORKPLACE_USER: 'workplace_user',
+  BOARD_ADMIN: 'board_admin',
+  BOARD_OWNER: 'board_owner',
+  BOARD_USER: 'board_user',
+  CARD_ADMIN: 'card_admin',
+  CARD_OWNER: 'card_owner',
+  CARD_USER: 'card_user'
+}

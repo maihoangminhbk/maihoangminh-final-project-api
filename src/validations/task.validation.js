@@ -2,11 +2,10 @@ import Joi from 'joi'
 import { HttpStatusCode } from '*/ultilities/constants'
 
 const createNew = async (req, res, next) => {
-
-  console.log('board validation - test')
   const condition = Joi.object({
+    cardId: Joi.string().required(),
     title: Joi.string().required().min(3).max(20).trim(),
-    workplaceId: Joi.string().required().min(3).trim()
+    percent: Joi.number().integer().min(1).max(100).required()
   })
 
   try {
@@ -21,8 +20,10 @@ const createNew = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const condition = Joi.object({
-    title: Joi.string().min(3).max(20).trim(),
-    columnOrder: Joi.array().items(Joi.string())
+    title: Joi.string().min(3).max(30).trim(),
+    cardId: Joi.string(),
+    complete: Joi.boolean(),
+    percent: Joi.number().integer().min(1).max(100)
   })
 
   try {
@@ -38,7 +39,7 @@ const update = async (req, res, next) => {
   }
 }
 
-export const BoardValidation = {
+export const TaskValidation = {
   createNew,
   update
 }

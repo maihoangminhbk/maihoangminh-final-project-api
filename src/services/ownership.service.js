@@ -11,7 +11,7 @@ const createNew = async (data) => {
 
       // await OwnershipModel.getOneById(newOwnershipId)
 
-      const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId, true)
+      const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId, 0, true)
       return updatedOwnership
     }
 
@@ -33,7 +33,7 @@ const addWorkplaceToOwnership = async (data) => {
     throw new Error('Ownership exist')
   }
 
-  const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId, false)
+  const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId, 0, false)
   return updatedOwnership
 
 }
@@ -69,12 +69,45 @@ const update = async (userId, data) => {
   }
 }
 
-const pushWorkplaceOrder = async (userId, workplaceId, active) => {
+const pushWorkplaceOrder = async (userId, workplaceId, role, active) => {
   try {
 
-    const updateOwnership = await OwnershipModel.pushWorkplaceOrder(userId, workplaceId, active)
+    const updateOwnership = await OwnershipModel.pushWorkplaceOrder(userId, workplaceId, role, active)
 
     return updateOwnership
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const pushBoardOrder = async (userId, boardId, role, active) => {
+  try {
+
+    const updateOwnership = await OwnershipModel.pushBoardOrder(userId, boardId, role, active)
+
+    return updateOwnership
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const checkWorkplaceAdmin = async (workplaceId, userId) => {
+  try {
+
+    const result = await OwnershipModel.checkWorkplaceAdmin(workplaceId, userId)
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const checkBoardAdmin = async (boardId, userId) => {
+  try {
+
+    const result = await OwnershipModel.checkBoardAdmin(boardId, userId)
+
+    return result
   } catch (error) {
     throw new Error(error)
   }
@@ -85,5 +118,8 @@ export const OwnershipService = {
   getOwnershipByUserId,
   update,
   pushWorkplaceOrder,
-  addWorkplaceToOwnership
+  addWorkplaceToOwnership,
+  pushBoardOrder,
+  checkWorkplaceAdmin,
+  checkBoardAdmin
 }

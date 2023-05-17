@@ -1,6 +1,10 @@
 import { BoardModel } from '*/models/board.model'
+import { UserModel } from '*/models/user.model'
 import { cloneDeep } from 'lodash'
 import { CardService } from '*/services/card.service'
+import { WorkplaceService } from '*/services/workplace.service'
+import { OwnershipService } from '*/services/ownership.service'
+import { NotPermission403Error, BadRequest400Error, Conflict409Error } from '../ultilities/errorsHandle/APIErrors'
 
 const createNew = async (data) => {
   try {
@@ -11,6 +15,8 @@ const createNew = async (data) => {
     const newBoard = await BoardModel.getOneById(newBoardId)
 
     newBoard.columns = []
+
+    await OwnershipService.pushBoardOrder(data.userId, newBoardId, 0, true)
 
     return newBoard
   } catch (error) {
@@ -85,8 +91,53 @@ const update = async (id, data) => {
   }
 }
 
+const addUser = async (req) => {
+  const { id, userId } = req.params
+  const { email, role } = req.body
+
+  const board = await BoardModel.getOneByOwnerAndId(id, userId)
+
+  if (!board) {
+    throw new NotPermission403Error('User not owner board')
+  }
+
+  const userAdded = await UserModel.getOneByEmail(email)
+
+  if (!userAdded) {
+    throw new BadRequest400Error('User with email not exist')
+  }
+
+  const isUserExist = await BoardModel.checkUserExist(id, userAdded._id.toString())
+
+
+  if (isUserExist) {
+    throw new Conflict409Error('User permission exist in board')
+  }
+
+  await OwnershipService.pushBoardOrder(userAdded._id.toString(), id, role, true)
+
+
+  const insertData = {
+    userId: userAdded._id.toString(),
+    role: role
+  }
+
+  const result = await BoardModel.addUser(id, insertData)
+
+  return result
+}
+
+const getUsers = async (req) => {
+  const { id } = req.params
+  const users = await BoardModel.getUsers(id)
+
+  return users
+}
+
 export const BoardService = {
   createNew,
   getFullBoard,
-  update
+  update,
+  addUser,
+  getUsers
 }

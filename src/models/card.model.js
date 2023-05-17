@@ -105,11 +105,25 @@ const deleteMany = async (ids) => {
   }
 }
 
+const getBoardId = async (cardId) => {
+  try {
+    let result = await getDB().collection(cardCollectionName).findOne({ _id: ObjectId(cardId) })
+
+    if (result) {
+      result = result.boardId.toString()
+    }
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const CardModel = {
   cardCollectionName,
   createNew,
   getOneById,
   deleteMany,
   update,
-  getCard
+  getCard,
+  getBoardId
 }

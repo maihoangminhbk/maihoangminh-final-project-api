@@ -24,7 +24,8 @@ const createNew = async (data) => {
     // Create Board
     const boardData = {
       title: 'My board',
-      workplaceId: newWorkplaceId.toString()
+      workplaceId: newWorkplaceId.toString(),
+      userId: data.userId
     }
 
     const createdBoard = await BoardService.createNew(boardData)
@@ -102,14 +103,17 @@ const addUser = async (req) => {
     throw new BadRequest400Error('User with email not exist')
   }
 
-  const isUserExist = await WorkplaceModel.checkUserExist(id, userId)
+  const isUserExist = await WorkplaceModel.checkUserExist(id, userAdded._id.toString())
+
+  console.log('workplace service - workplaceId userId', id, userAdded._id.toString())
+  console.log('workplace service - is user exist', isUserExist)
 
 
   if (isUserExist) {
     throw new Conflict409Error('User permission exist in workplace')
   }
 
-  await OwnershipService.pushWorkplaceOrder(userAdded._id.toString(), id, true)
+  await OwnershipService.pushWorkplaceOrder(userAdded._id.toString(), id, role, true)
 
 
   const insertData = {
@@ -123,17 +127,21 @@ const addUser = async (req) => {
 }
 
 const getUsers = async (req) => {
-  const { id } = req.params
+  const { id, userId } = req.params
+
+  const workplace = await WorkplaceModel.getOneByOwnerAndId(id, userId)
+
+  if (!workplace) {
+    throw new NotPermission403Error('User not owner workplace')
+  }
+
   const users = await WorkplaceModel.getUsers(id)
 
   return users
 }
 
 const addBoard = async (workplaceId, data) => {
-  const boardData = {
-    title: data.title,
-    workplaceId: workplaceId
-  }
+  const boardData = data
 
   const createdBoard = await BoardService.createNew(boardData)
 
@@ -148,6 +156,14 @@ const addBoard = async (workplaceId, data) => {
   return newWorkplace
 }
 
+const checkUserExist = async (workplaceId, userId) => {
+  return WorkplaceModel.checkUserExist(workplaceId, userId)
+}
+
+// const checkWorkplaceAdmin = async (workplaceId, userId) => {
+//   return WorkplaceModel.checkWorkplaceAdmin(workplaceId, userId)
+// }
+
 export const WorkplaceService = {
   createNew,
   getWorkplace,
@@ -155,6 +171,8 @@ export const WorkplaceService = {
   pushBoardOrder,
   addUser,
   getUsers,
-  addBoard
+  addBoard,
+  checkUserExist
+  // checkWorkplaceAdmin
 }
 

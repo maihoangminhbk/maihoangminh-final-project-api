@@ -9,6 +9,14 @@ const ownershipCollectionSchema = Joi.object({
   workplaceOrder: Joi.array().items(
     Joi.object({
       workplaceId: Joi.string().required().min(3).trim(),
+      role: Joi.number().integer().min(0).max(1),
+      active: Joi.boolean().default(false)
+    })
+  ).default([]),
+  boardOrder: Joi.array().items(
+    Joi.object({
+      boardId: Joi.string().required().min(3).trim(),
+      role: Joi.number().integer().min(0).max(1),
       active: Joi.boolean().default(false)
     })
   ).default([]),
@@ -35,7 +43,6 @@ const createNew = async (data) => {
       ...validateValue,
       userId: ObjectId(data.userId)
     }
-
 
 
     const result = await getDB().collection(ownershipCollectionName).insertOne(insertValue)
@@ -85,16 +92,43 @@ const getOneById = async (id) => {
  * @param {string} workplaceId
  * @returns
  */
-const pushWorkplaceOrder = async (userId, workplaceId, active) => {
+const pushWorkplaceOrder = async (userId, workplaceId, role, active) => {
   try {
     const insert_data = {
       workplaceId: ObjectId(workplaceId),
+      role: role,
       active: active
     }
 
     const result = await getDB().collection(ownershipCollectionName).findOneAndUpdate(
       { userId: ObjectId(userId) },
       { $push: { workplaceOrder: insert_data } },
+      { returnOriginal: false }
+    )
+
+    return result.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+/**
+ *
+ * @param {string} userId
+ * @param {string} boardId
+ * @returns
+ */
+const pushBoardOrder = async (userId, boardId, role, active) => {
+  try {
+    const insert_data = {
+      boardId: ObjectId(boardId),
+      role: role,
+      active: active
+    }
+
+    const result = await getDB().collection(ownershipCollectionName).findOneAndUpdate(
+      { userId: ObjectId(userId) },
+      { $push: { boardOrder: insert_data } },
       { returnOriginal: false }
     )
 
@@ -113,10 +147,47 @@ const getOwnershipByUserId = async (userId) => {
   }
 }
 
+const checkWorkplaceAdmin = async (workplaceId, userId) => {
+  try {
+    const result = await getDB().collection(ownershipCollectionName).findOne(
+      {
+        userId: ObjectId(userId),
+        workplaceOrder: { $elemMatch: {
+          workplaceId: ObjectId(workplaceId),
+          role: 0
+        } }
+      }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const checkBoardAdmin = async (boardId, userId) => {
+  try {
+    const result = await getDB().collection(ownershipCollectionName).findOne(
+      {
+        userId: ObjectId(userId),
+        boardOrder: { $elemMatch: {
+          boardId: ObjectId(boardId),
+          role: 0
+        } }
+      }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const OwnershipModel = {
   createNew,
   getOwnershipByUserId,
   pushWorkplaceOrder,
   getOneById,
-  update
+  update,
+  pushBoardOrder,
+  checkWorkplaceAdmin,
+  checkBoardAdmin
 }

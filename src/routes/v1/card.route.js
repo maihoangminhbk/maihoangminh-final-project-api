@@ -1,16 +1,20 @@
 import express from 'express'
 import { CardController } from '*/controllers/card.controller'
 import { CardValidation } from '*/validations/card.validation'
+import auth from '*/middlewares/auth'
+
+import authorization from '*/middlewares/authorization'
+import { ROLE } from '*/ultilities/constants'
 
 const router = express.Router()
 
 router.route('/')
-  .post(CardValidation.createNew, CardController.createNew)
+  .post(auth, authorization(ROLE.BOARD_ADMIN), CardValidation.createNew, CardController.createNew)
 
 router.route('/:id')
-  .put(CardValidation.update, CardController.update)
+  .put(auth, authorization(ROLE.BOARD_ADMIN), CardValidation.update, CardController.update)
 
 router.route('/:id/image/upload')
-  .post(CardController.uploadImage)
+  .post(auth, authorization(ROLE.BOARD_ADMIN), CardController.uploadImage)
 
 export const cardRoutes = router

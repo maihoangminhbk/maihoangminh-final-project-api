@@ -44,7 +44,17 @@ const update = async (id, data) => {
   }
 }
 
+const getBoardId = async (columnId) => {
+  try {
+    const result = await ColumnModel.getBoardId(columnId)
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const ColumnService = {
   createNew,
-  update
+  update,
+  getBoardId
 }

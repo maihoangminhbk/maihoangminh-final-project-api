@@ -182,9 +182,19 @@ const deleteImage = async (imageName) => {
   }
 }
 
+const getBoardId = async (cardId) => {
+  try {
+    const result = await CardModel.getBoardId(cardId)
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const CardService = {
   createNew,
   update,
   uploadImage,
-  getImageUrl
+  getImageUrl,
+  getBoardId
 }

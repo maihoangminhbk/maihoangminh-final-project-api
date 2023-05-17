@@ -4,6 +4,8 @@ import { HttpStatusCode } from '*/ultilities/constants'
 
 const createNew = async (req, res) => {
   try {
+    req.body.userId = req.params.userId
+
     const result = await BoardService.createNew(req.body)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
@@ -37,9 +39,29 @@ const update = async (req, res) => {
   }
 }
 
+const addUser = async (req, res, next) => {
+  try {
+    const result = await BoardService.addUser(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getUsers = async (req, res, next) => {
+  try {
+    const result = await BoardService.getUsers(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 
 export const BoardController = {
   createNew,
   getFullBoard,
-  update
+  update,
+  addUser,
+  getUsers
 }

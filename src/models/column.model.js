@@ -91,10 +91,24 @@ const update = async (id, data) => {
   }
 }
 
+const getBoardId = async (columnId) => {
+  try {
+    let result = await getDB().collection(columnCollectionName).findOne({ _id: ObjectId(columnId) })
+
+    if (result) {
+      result = result.boardId.toString()
+    }
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const ColumnModel = {
   columnCollectionName,
   createNew,
   update,
   pushCardOrder,
-  getOneById
+  getOneById,
+  getBoardId
 }
