@@ -113,6 +113,28 @@ const checkBoardAdmin = async (boardId, userId) => {
   }
 }
 
+const checkBoardUser = async (boardId, userId) => {
+  try {
+
+    const result = await OwnershipModel.checkBoardUser(boardId, userId)
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const pushCardOrder = async (userId, cardId) => {
+  try {
+
+    const updateOwnership = await OwnershipModel.pushCardOrder(userId, cardId)
+
+    return updateOwnership
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const OwnershipService = {
   createNew,
   getOwnershipByUserId,
@@ -121,5 +143,7 @@ export const OwnershipService = {
   addWorkplaceToOwnership,
   pushBoardOrder,
   checkWorkplaceAdmin,
-  checkBoardAdmin
+  checkBoardAdmin,
+  checkBoardUser,
+  pushCardOrder
 }

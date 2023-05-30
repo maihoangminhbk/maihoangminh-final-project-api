@@ -70,7 +70,7 @@ const update = async (id, data) => {
 const getOneById = async (id) => {
   try {
 
-    const result = await getDB().collection(boardCollectionName).findOne({ _id: id })
+    const result = await getDB().collection(boardCollectionName).findOne({ _id: ObjectId(id) })
 
     return result
 

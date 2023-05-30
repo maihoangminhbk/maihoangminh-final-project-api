@@ -1,9 +1,12 @@
 import { BoardModel } from '*/models/board.model'
 import { UserModel } from '*/models/user.model'
 import { cloneDeep } from 'lodash'
+
 import { CardService } from '*/services/card.service'
 import { WorkplaceService } from '*/services/workplace.service'
 import { OwnershipService } from '*/services/ownership.service'
+import { NotificationService } from '*/services/notification.service'
+
 import { NotPermission403Error, BadRequest400Error, Conflict409Error } from '../ultilities/errorsHandle/APIErrors'
 
 const createNew = async (data) => {
@@ -17,6 +20,16 @@ const createNew = async (data) => {
     newBoard.columns = []
 
     await OwnershipService.pushBoardOrder(data.userId, newBoardId, 0, true)
+
+    const notificationData = {
+      userCreateId: data.userId,
+      action: 'created',
+      userTargetId: null,
+      objectTargetType: 'board',
+      objectTargetId: newBoard._id.toString()
+    }
+
+    await NotificationService.createNew(notificationData)
 
     return newBoard
   } catch (error) {
@@ -95,11 +108,11 @@ const addUser = async (req) => {
   const { id, userId } = req.params
   const { email, role } = req.body
 
-  const board = await BoardModel.getOneByOwnerAndId(id, userId)
+  // const board = await BoardModel.getOneByOwnerAndId(id, userId)
 
-  if (!board) {
-    throw new NotPermission403Error('User not owner board')
-  }
+  // if (!board) {
+  //   throw new NotPermission403Error('User not owner board')
+  // }
 
   const userAdded = await UserModel.getOneByEmail(email)
 

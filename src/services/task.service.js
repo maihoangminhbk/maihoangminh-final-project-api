@@ -1,13 +1,11 @@
 import { TaskModel } from '*/models/task.model'
 import { CardModel } from '*/models/card.model'
-import busboy from 'busboy'
-import randomImageName from '../ultilities/randomImageName'
+import { UserModel } from '*/models/user.model'
 
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { Upload } from '@aws-sdk/lib-storage'
-import { HttpStatusCode } from '*/ultilities/constants'
+import { OwnershipService } from '*/services/ownership.service'
 
+import { NotPermission403Error, BadRequest400Error, Conflict409Error } from '../ultilities/errorsHandle/APIErrors'
+import { CardService } from './card.service'
 
 const createNew = async (data) => {
   try {
@@ -18,6 +16,8 @@ const createNew = async (data) => {
     // Push task id to task order in card collection
     // const cardId = newTask.cardId.toString()
     // await CardModel.pushCardOrder(cardId, newTaskId.toString())
+
+
     return newTask
   } catch (error) {
     throw new Error(error)
@@ -181,9 +181,47 @@ const getTask = async (taskId) => {
 //   }
 // }
 
+const addUser = async (req) => {
+  const { id, userId } = req.params
+  const { email } = req.body
+
+  const task = await TaskModel.getTask(id)
+
+  if (!task) {
+    throw new NotPermission403Error('Task not exist')
+  }
+
+  const userAdded = await UserModel.getOneByEmail(email)
+
+  if (!userAdded) {
+    throw new BadRequest400Error('User with email not exist')
+  }
+
+  const isUserExist = await TaskModel.checkUserExist(id, userAdded._id.toString())
+
+
+  if (isUserExist) {
+    throw new Conflict409Error('User permission exist in task')
+  }
+
+
+  await CardService.addUser(userAdded._id.toString(), task.cardId.toString())
+
+
+  const insertData = {
+    userId: userAdded._id.toString()
+    // role: role
+  }
+
+  const result = await TaskModel.addUser(id, insertData)
+
+  return result
+}
+
 export const TaskService = {
   createNew,
-  update
+  update,
   // uploadImage,
   // getImageUrl
+  addUser
 }

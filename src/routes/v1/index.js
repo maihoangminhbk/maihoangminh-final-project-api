@@ -7,6 +7,8 @@ import { taskRoutes } from './task.route'
 import { userRoutes } from './user.route'
 import { workplaceRoutes } from './workplace.route'
 import { ownershipRoutes } from './ownership.route'
+import { notificationRoutes } from './notification.route'
+import { slackRoutes } from './slack.route'
 
 import { logError, returnError, logErrorMiddleware } from '*/middlewares/errorsHandler'
 
@@ -53,6 +55,16 @@ router.use('/workplaces', workplaceRoutes)
  * Ownership API
  */
 router.use('/ownership', ownershipRoutes)
+
+/**
+ * Notification API
+ */
+router.use('/notifications', notificationRoutes)
+
+/**
+ * Slack API
+ */
+router.use('/slack', slackRoutes)
 
 router.use(returnError)
 

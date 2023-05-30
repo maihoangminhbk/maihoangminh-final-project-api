@@ -1,6 +1,7 @@
 import Joi from 'joi'
 import { getDB } from '*/config/mongodb'
 import { ObjectId } from 'mongodb'
+import { TaskModel } from './task.model'
 // Define card collection
 const cardCollectionName = 'cards'
 const cardCollectionSchema = Joi.object({
@@ -8,6 +9,16 @@ const cardCollectionSchema = Joi.object({
   columnId: Joi.string().required(), // Also ObjectId when create new
   title: Joi.string().required().min(3).max(30).trim(),
   cover: Joi.string().default(null),
+  description: Joi.string().max(1000).trim().default('This is description'),
+  startTime: Joi.date().timestamp().default(null),
+  endTime: Joi.date().timestamp().default(null),
+  users: Joi.array().items(
+    Joi.object({
+      userId: Joi.string().required().min(3).trim().required()
+    // Admin role: 1; User role: 0
+    // role: Joi.number().integer().min(0).max(1).default(0)
+    })
+  ).default([]),
   createdAt: Joi.date().timestamp().default(Date.now()),
   updatedAt: Joi.date().timestamp().default(Date.now()),
   _destroy: Joi.boolean().default(false)
@@ -62,12 +73,22 @@ const update = async (id, data) => {
   }
 }
 
-const getCard = async (id) => {
+const getCard = async (cardId) => {
   try {
 
-    const result = await getDB().collection(cardCollectionName).findOne({ _id: ObjectId(id) })
+    const result = await getDB().collection(cardCollectionName).aggregate([
+      { $match: {
+        _id: ObjectId(cardId),
+        _destroy: false
+      } },
+      { $lookup: {
+        from: TaskModel.taskCollectionName,
+        localField: '_id',
+        foreignField: 'cardId',
+        as: 'tasks' } }
+    ]).toArray()
 
-    return result
+    return result[0] || {}
 
   } catch (error) {
     throw new Error(error)
@@ -87,7 +108,7 @@ const getOneById = async (id) => {
 }
 
 /**
- * 
+ *
  * @param { Array card id } ids
  */
 const deleteMany = async (ids) => {
@@ -118,6 +139,42 @@ const getBoardId = async (cardId) => {
   }
 }
 
+const checkUserExist = async (cardId, userId) => {
+  try {
+    const result = await getDB().collection(cardCollectionName).findOne({
+      _id: ObjectId(cardId),
+      users: { $elemMatch: { userId: ObjectId(userId) } }
+    })
+
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const addUser = async (cardId, data) => {
+  try {
+
+    // const validateValue = await validateSchema(data)
+    const validateValue = data
+
+    const insertData = { ...validateValue }
+    insertData.userId = ObjectId(insertData.userId)
+
+    const result = await getDB().collection(cardCollectionName).findOneAndUpdate(
+      { _id: ObjectId(cardId) },
+      { $push: { users: insertData } },
+      { returnOriginal: false }
+    )
+
+    return result.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const CardModel = {
   cardCollectionName,
   createNew,
@@ -125,5 +182,7 @@ export const CardModel = {
   deleteMany,
   update,
   getCard,
-  getBoardId
+  getBoardId,
+  checkUserExist,
+  addUser
 }

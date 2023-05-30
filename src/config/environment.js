@@ -9,5 +9,7 @@ export const env = {
   MAILER_USER: process.env.MAILER_USER,
   MAILER_PASSWORD: process.env.MAILER_PASSWORD,
 
-  SOCKET_HOST: process.env.SOCKET_HOST
+  SOCKET_HOST: process.env.SOCKET_HOST,
+
+  SLACK_OAUTH_URL: process.env.SLACK_OAUTH_URL
 }

@@ -20,6 +20,11 @@ const ownershipCollectionSchema = Joi.object({
       active: Joi.boolean().default(false)
     })
   ).default([]),
+  cardOrder: Joi.array().items(
+    Joi.object({
+      boardId: Joi.string().required().min(3).trim()
+    })
+  ).default([]),
   createdAt: Joi.date().timestamp().default(Date.now()),
   updatedAt: Joi.date().timestamp().default(Date.now()),
   _destroy: Joi.boolean().default(false)
@@ -181,6 +186,46 @@ const checkBoardAdmin = async (boardId, userId) => {
   }
 }
 
+const checkBoardUser = async (boardId, userId) => {
+  try {
+    const result = await getDB().collection(ownershipCollectionName).findOne(
+      {
+        userId: ObjectId(userId),
+        boardOrder: { $elemMatch: {
+          boardId: ObjectId(boardId)
+        } }
+      }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+/**
+ *
+ * @param {string} userId
+ * @param {string} boardId
+ * @returns
+ */
+const pushCardOrder = async (userId, cardId) => {
+  try {
+    const insert_data = {
+      cardId: ObjectId(cardId)
+    }
+
+    const result = await getDB().collection(ownershipCollectionName).findOneAndUpdate(
+      { userId: ObjectId(userId) },
+      { $push: { cardOrder: insert_data } },
+      { returnOriginal: false }
+    )
+
+    return result.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const OwnershipModel = {
   createNew,
   getOwnershipByUserId,
@@ -189,5 +234,7 @@ export const OwnershipModel = {
   update,
   pushBoardOrder,
   checkWorkplaceAdmin,
-  checkBoardAdmin
+  checkBoardAdmin,
+  checkBoardUser,
+  pushCardOrder
 }

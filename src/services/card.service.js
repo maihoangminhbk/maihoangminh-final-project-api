@@ -1,5 +1,10 @@
 import { CardModel } from '*/models/card.model'
 import { ColumnModel } from '*/models/column.model'
+import { UserModel } from '*/models/user.model'
+
+import { OwnershipService } from './ownership.service'
+import { NotificationService } from '*/services/notification.service'
+
 import busboy from 'busboy'
 import randomImageName from '../ultilities/randomImageName'
 
@@ -7,6 +12,8 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } fro
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Upload } from '@aws-sdk/lib-storage'
 import { HttpStatusCode } from '*/ultilities/constants'
+
+import { NotPermission403Error, BadRequest400Error, Conflict409Error } from '../ultilities/errorsHandle/APIErrors'
 
 
 const createNew = async (data) => {
@@ -191,10 +198,31 @@ const getBoardId = async (cardId) => {
   }
 }
 
+const addUser = async (userId, cardId) => {
+
+  // const board = await BoardModel.getOneByOwnerAndId(id, userId)
+
+  // if (!board) {
+  //   throw new NotPermission403Error('User not owner board')
+  // }
+
+  await OwnershipService.pushCardOrder(userId, cardId)
+
+  const insertData = {
+    userId: userId
+  }
+
+  const result = await CardModel.addUser(cardId, insertData)
+
+  return result
+}
+
 export const CardService = {
   createNew,
   update,
   uploadImage,
   getImageUrl,
-  getBoardId
+  getBoardId,
+  getCard,
+  addUser
 }

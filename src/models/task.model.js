@@ -10,6 +10,11 @@ const taskCollectionSchema = Joi.object({
   percent: Joi.number().integer().min(1).max(100).required(),
   createdAt: Joi.date().timestamp().default(Date.now()),
   updatedAt: Joi.date().timestamp().default(Date.now()),
+  users: Joi.array().items(Joi.object({
+    userId: Joi.string().required().min(3).trim().required()
+    // Admin role: 1; User role: 0
+    // role: Joi.number().integer().min(0).max(1).default(0)
+  })).default([]),
   _destroy: Joi.boolean().default(false)
 })
 
@@ -26,7 +31,11 @@ const createNew = async (data) => {
       cardId: ObjectId(validatedValue.cardId)
     }
 
+    console.log('tasks model - insert data', insertValue)
+
     const result = await getDB().collection(taskCollectionName).insertOne(insertValue)
+
+    console.log('task model - result', result)
 
     return result
   } catch (error) {
@@ -103,11 +112,49 @@ const deleteMany = async (ids) => {
   }
 }
 
+const checkUserExist = async (taskId, userId) => {
+  try {
+    const result = await getDB().collection(taskCollectionName).findOne({
+      _id: ObjectId(taskId),
+      users: { $elemMatch: { userId: ObjectId(userId) } }
+    })
+
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const addUser = async (taskId, data) => {
+  try {
+
+    // const validateValue = await validateSchema(data)
+    const validateValue = data
+
+    const insertData = { ...validateValue }
+    insertData.userId = ObjectId(insertData.userId)
+
+    const result = await getDB().collection(taskCollectionName).findOneAndUpdate(
+      { _id: ObjectId(taskId) },
+      { $push: { users: insertData } },
+      { returnOriginal: false }
+    )
+
+    return result.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const TaskModel = {
   taskCollectionName,
   createNew,
   getOneById,
   deleteMany,
   update,
-  getTask
+  getTask,
+  checkUserExist,
+  addUser
 }

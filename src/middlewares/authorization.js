@@ -12,7 +12,10 @@ const authorization = function(role) {
       switch (role) {
       case ROLE.WORKPLACE_ADMIN:
       {
-        const { id, userId } = req.params
+        let { id, userId } = req.params
+        if (req.body.workplaceId) {
+          id = req.body.workplaceId
+        }
         const ownership = await OwnershipService.checkWorkplaceAdmin(id, userId)
         console.log('authorization - ownership check workplace admin', ownership)
 
@@ -49,6 +52,36 @@ const authorization = function(role) {
 
         if (!ownership) {
           throw new Unauthorized401Error('Only board admin can perform this action')
+        }
+        break
+      }
+
+      case ROLE.BOARD_USER: {
+        const { id, userId } = req.params
+
+        let boardId = id
+
+        if (req.baseUrl.toString().includes('columns')) {
+          boardId = await ColumnService.getBoardId(id)
+
+          if (!boardId) {
+            boardId = req.body.boardId
+          }
+        }
+
+        if (req.baseUrl.toString().includes('cards')) {
+          boardId = await CardService.getBoardId(id)
+
+          if (!boardId) {
+            boardId = req.body.boardId
+          }
+        }
+
+        const ownership = await OwnershipService.checkBoardUser(boardId, userId)
+        console.log('authorization - ownership check board user', ownership)
+
+        if (!ownership) {
+          throw new Unauthorized401Error('Only board user can perform this action')
         }
         break
       }

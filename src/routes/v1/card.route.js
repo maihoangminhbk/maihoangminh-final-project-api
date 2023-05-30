@@ -12,6 +12,7 @@ router.route('/')
   .post(auth, authorization(ROLE.BOARD_ADMIN), CardValidation.createNew, CardController.createNew)
 
 router.route('/:id')
+  .get(auth, authorization(ROLE.BOARD_USER), CardController.getCard)
   .put(auth, authorization(ROLE.BOARD_ADMIN), CardValidation.update, CardController.update)
 
 router.route('/:id/image/upload')

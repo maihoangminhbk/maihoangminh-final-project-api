@@ -5,7 +5,7 @@ import { getDB } from '*/config/mongodb'
 // Define board collection
 const userCollectionName = 'users'
 const userCollectionSchema = Joi.object({
-  name: Joi.string().required().min(3).max(40).trim(),
+  name: Joi.string().required().min(3).max(100).trim(),
   email: Joi.string().required().min(3).trim(),
   password: Joi.string().required().min(3).trim(),
   active: Joi.boolean().default(false),
@@ -65,17 +65,17 @@ const createNew = async (data) => {
 //   }
 // }
 
-// const getOneById = async (id) => {
-//   try {
+const getOneById = async (id) => {
+  try {
 
-//     const result = await getDB().collection(boardCollectionName).findOne({ _id: id })
+    const result = await getDB().collection(userCollectionName).findOne({ _id: ObjectId(id) })
 
-//     return result
+    return result
 
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
 // /**
 //  *
@@ -126,9 +126,9 @@ const createNew = async (data) => {
 export const UserModel = {
   getOneByEmail,
   createNew,
-  userCollectionName
+  userCollectionName,
   // getFullBoard,
   // pushColumnOrder,
-  // getOneById,
+  getOneById
   // update
 }
