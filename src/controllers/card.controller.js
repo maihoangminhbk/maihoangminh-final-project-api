@@ -4,7 +4,14 @@ import { HttpStatusCode } from '*/ultilities/constants'
 
 const createNew = async (req, res) => {
   try {
-    const result = await CardService.createNew(req.body)
+    const { userId } = req.params
+
+    const data = {
+      ...req.body,
+      userId: userId
+    }
+
+    const result = await CardService.createNew(data)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({
@@ -46,10 +53,38 @@ const getCard = async (req, res, next) => {
   }
 }
 
+const getCalendarCards = async (req, res, next) => {
+  try {
+    const { userId } = req.params
+
+    const data = {
+      ...req.body,
+      userId: userId
+    }
+
+    const result = await CardService.getCalendarCards(data)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const addUser = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const result = await CardService.addUser(req.body.userId, id)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 
 export const CardController = {
   createNew,
   update,
   uploadImage,
-  getCard
+  getCard,
+  getCalendarCards,
+  addUser
 }

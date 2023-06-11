@@ -12,6 +12,7 @@ const cardCollectionSchema = Joi.object({
   description: Joi.string().max(1000).trim().default('This is description'),
   startTime: Joi.date().timestamp().default(null),
   endTime: Joi.date().timestamp().default(null),
+  userId: Joi.string().required(),
   users: Joi.array().items(
     Joi.object({
       userId: Joi.string().required().min(3).trim().required()
@@ -35,7 +36,8 @@ const createNew = async (data) => {
     const insertValue = {
       ...validatedValue,
       boardId: ObjectId(validatedValue.boardId),
-      columnId: ObjectId(validatedValue.columnId)
+      columnId: ObjectId(validatedValue.columnId),
+      userId: ObjectId(validatedValue.userId)
     }
 
     const result = await getDB().collection(cardCollectionName).insertOne(insertValue)
@@ -54,6 +56,10 @@ const update = async (id, data) => {
     if (data.boardId) {
       insertValue.boardId = ObjectId(data.boardId)
       insertValue.columnId = ObjectId(data.columnId)
+    }
+
+    if (data.userId) {
+      insertValue.userId = ObjectId(data.userId)
     }
 
     const result = await getDB().collection(cardCollectionName).findOneAndUpdate(
@@ -175,6 +181,30 @@ const addUser = async (cardId, data) => {
   }
 }
 
+const getCalendarCards = async (data) => {
+  try {
+    const { userId, workplaceId, boardList } = data
+
+    const convertedBoard = boardList.map(boardId => {
+      return ObjectId(boardId)
+    }
+    )
+
+    const result = await getDB().collection(cardCollectionName).find(
+      {
+        _destroy: false,
+        endTime: { $ne : null },
+        boardId: { $in: convertedBoard }
+      }
+    ).toArray()
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const CardModel = {
   cardCollectionName,
   createNew,
@@ -184,5 +214,6 @@ export const CardModel = {
   getCard,
   getBoardId,
   checkUserExist,
-  addUser
+  addUser,
+  getCalendarCards
 }

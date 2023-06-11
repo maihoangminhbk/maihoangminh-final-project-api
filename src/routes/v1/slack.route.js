@@ -9,13 +9,28 @@ import { ROLE } from '*/ultilities/constants'
 const router = express.Router()
 
 router.route('/auth')
-  .get(SlackController.auth)
+  .post(SlackController.auth)
 
 router.route('/auth/callback')
   .get(SlackController.callback)
 
-// router.route('/:id')
-//   .get(auth, authorization(ROLE.BOARD_USER), CardController.getCard)
+router.route('/get-workspace')
+  .post(SlackController.getWorkspace)
+
+router.route('/create-connection')
+  .post(SlackController.createConnection)
+
+router.route('/get-connections')
+  .post(SlackController.getConnections)
+
+router.route('/update-connection')
+  .post(SlackController.updateConnection)
+
+router.route('/get-channels')
+  .post(SlackController.getChannels)
+
+// router.route('/get-connections')
+//   .post(SlackController.getConnections)
 //   .put(auth, authorization(ROLE.BOARD_ADMIN), CardValidation.update, CardController.update)
 
 // router.route('/:id/image/upload')

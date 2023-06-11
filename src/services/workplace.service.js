@@ -113,6 +113,10 @@ const addUser = async (req) => {
     throw new Conflict409Error('User permission exist in workplace')
   }
 
+  if (userId === userAdded._id.toString()) {
+    throw new Conflict409Error('Cannot add myseft to workplace')
+  }
+
   await OwnershipService.pushWorkplaceOrder(userAdded._id.toString(), id, role, true)
 
 

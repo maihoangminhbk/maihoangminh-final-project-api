@@ -6,10 +6,13 @@ export const env = {
   APP_PORT: process.env.APP_PORT,
   DATABASE_NAME: process.env.DATABASE_NAME,
 
+  SESSION_SECRET: process.env.SESSION_SECRET,
+
   MAILER_USER: process.env.MAILER_USER,
   MAILER_PASSWORD: process.env.MAILER_PASSWORD,
 
   SOCKET_HOST: process.env.SOCKET_HOST,
 
-  SLACK_OAUTH_URL: process.env.SLACK_OAUTH_URL
+  SLACK_OAUTH_URL: process.env.SLACK_OAUTH_URL,
+  SLACK_REDIRECT_URI: process.env.SLACK_REDIRECT_URI
 }

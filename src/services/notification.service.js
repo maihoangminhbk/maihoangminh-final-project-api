@@ -17,14 +17,15 @@ const createNew = async (data) => {
     const userTarget = await UserModel.getOneById(userTargetId)
     const objectTarget = await BoardModel.getOneById(objectTargetId)
 
-    if (userCreate.cover) {
-      notificationData.userCreateAvatar = userCreate.cover
-    }
 
     const notificationData = {
       ...data,
       userCreateName: userCreate.name,
       objectTargetName: objectTarget.title
+    }
+
+    if (userCreate.cover) {
+      notificationData.userCreateAvatar = userCreate.cover
     }
 
     if (userTarget) {
