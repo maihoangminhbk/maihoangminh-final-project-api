@@ -3,6 +3,7 @@ import { ColumnModel } from '*/models/column.model'
 import { UserModel } from '*/models/user.model'
 
 import { OwnershipService } from './ownership.service'
+import { WorkplaceService } from './workplace.service'
 import { NotificationService } from '*/services/notification.service'
 
 import busboy from 'busboy'
@@ -21,11 +22,13 @@ const createNew = async (data) => {
     const result = await CardModel.createNew(data)
     const newCardId = result.insertedId
 
-
     const newCard = await CardModel.getOneById(newCardId)
     // Push card id to card order in column collection
     const columnId = newCard.columnId.toString()
     await ColumnModel.pushCardOrder(columnId, newCardId.toString())
+
+    await OwnershipService.pushCardOrder(data.userId, newCard._id.toString())
+
     return newCard
   } catch (error) {
     throw new Error(error)
@@ -206,6 +209,18 @@ const addUser = async (userId, cardId) => {
   //   throw new NotPermission403Error('User not owner board')
   // }
 
+  const card = await getCard(cardId)
+
+  if (!card) {
+    throw new BadRequest400Error('Can not find card Id')
+  }
+
+  const checkBoardUser = await OwnershipService.checkBoardUser(card.boardId.toString(), userId)
+
+  if (!checkBoardUser) {
+    throw new NotPermission403Error('Added User not in board')
+  }
+
   await OwnershipService.pushCardOrder(userId, cardId)
 
   const insertData = {
@@ -217,6 +232,40 @@ const addUser = async (userId, cardId) => {
   return result
 }
 
+const getCalendarCards = async (data) => {
+  try {
+    const { workplaceId, boardList } = data
+
+    const workplace = await WorkplaceService.getWorkplace(workplaceId)
+    if (!workplace) {
+      throw new BadRequest400Error('Workplace not exist')
+    }
+
+    // console.log('workplace - boardorder', workplace.boardOrder)
+
+    boardList.map(boardId => {
+      let checkExist = 0
+      workplace.boardOrder.map(board => {
+        if (board.boardId.toString() === boardId) {
+          checkExist = 1
+        }
+      })
+
+      if (!checkExist) {
+        throw new BadRequest400Error('Board in boardlist not exist in workplace')
+      }
+      // if (!workplace.boardOrder.includes(boardId)) {
+      //   throw new BadRequest400Error('Board in boardlist not exist in workplace')
+      // }
+    })
+
+    const result = await CardModel.getCalendarCards(data)
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const CardService = {
   createNew,
   update,
@@ -224,5 +273,6 @@ export const CardService = {
   getImageUrl,
   getBoardId,
   getCard,
-  addUser
+  addUser,
+  getCalendarCards
 }
