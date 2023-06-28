@@ -18,6 +18,18 @@ router.route('/:id')
 router.route('/:id/add-user')
   .post(auth, authorization(ROLE.BOARD_ADMIN), CardValidation.addUser, CardController.addUser)
 
+router.route('/:id/delete-user')
+  .post(auth, authorization(ROLE.BOARD_ADMIN), CardController.deleteUser)
+
+// router.route('/:id/update-user')
+//   .post(auth, authorization(ROLE.BOARD_ADMIN), CardController.updateUser)
+
+router.route('/:id/search-users')
+  .post(auth, CardController.searchUsers)
+
+router.route('/:id/search-users-to-add')
+  .post(auth, CardController.searchUsersToAdd)
+
 router.route('/:id/image/upload')
   .post(auth, authorization(ROLE.BOARD_ADMIN), CardController.uploadImage)
 

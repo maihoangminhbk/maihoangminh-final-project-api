@@ -26,3 +26,8 @@ export const ROLE = {
   CARD_OWNER: 'card_owner',
   CARD_USER: 'card_user'
 }
+
+export const ROWS_NUMBER = {
+  USER_LIST_DROPDOWN: 4,
+  DASHBOARD_USER_LIST: 20
+}

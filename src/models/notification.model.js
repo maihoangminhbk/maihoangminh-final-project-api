@@ -25,7 +25,6 @@ const validateSchema = async (data) => {
 
 const createNew = async (data) => {
   try {
-    console.log('notification model', data)
     const validatedValue = await validateSchema(data)
 
     const insertValue = {

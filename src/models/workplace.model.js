@@ -103,7 +103,7 @@ const checkUserExist = async (workplaceId, userId) => {
     const result = await getDB().collection(workplaceCollectionName).findOne({
       _id: ObjectId(workplaceId),
       users: { $elemMatch: {
-        userId: ObjectId(userId),
+        userId: ObjectId(userId)
         // role: 1
       } }
     })
@@ -207,19 +207,33 @@ const pushBoardOrder = async (workplaceId, board) => {
   }
 }
 
-// const checkWorkplaceAdmin = async(workplaceId, userId) => {
-//   try {
-//     const result = await getDB().collection(workplaceCollectionName).findOne({
-//       _id: ObjectId(workplaceId),
-//       userId: { $elemMatch: { userId: ObjectId(userId) } }
-//     })
+/**
+ *
+ * @param {string} workplaceId
+ * @param {string} boardId
+ * @returns
+ */
+const getUserCount = async (workplaceId) => {
+  try {
+    const result = await getDB().collection(workplaceCollectionName).aggregate([
+      { $match: {
+        _id: ObjectId(workplaceId),
+        _destroy: false
+      } },
+      { $project: {
+        count: { $size: '$users' }
+      } }
+    ]
+    ).toArray()
 
+    // Add owner user
+    const count = result[0].count + 1
 
-//     return result
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
+    return count
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
 export const WorkplaceModel = {
   createNew,
@@ -230,6 +244,6 @@ export const WorkplaceModel = {
   getOneByOwnerAndId,
   addUser,
   checkUserExist,
-  getUsers
-  // checkWorkplaceAdmin
+  getUsers,
+  getUserCount
 }

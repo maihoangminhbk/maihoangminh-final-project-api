@@ -34,8 +34,6 @@ const createNew = async (data) => {
       delete notificationData.userTargetId
     }
 
-    console.log('notification service', notificationData)
-
     const result = await NotificationModel.createNew(notificationData)
 
     return result

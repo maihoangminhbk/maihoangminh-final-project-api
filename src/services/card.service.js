@@ -1,6 +1,7 @@
 import { CardModel } from '*/models/card.model'
 import { ColumnModel } from '*/models/column.model'
 import { UserModel } from '*/models/user.model'
+import { BoardModel } from '*/models/board.model'
 
 import { OwnershipService } from './ownership.service'
 import { WorkplaceService } from './workplace.service'
@@ -19,12 +20,29 @@ import { NotPermission403Error, BadRequest400Error, Conflict409Error } from '../
 
 const createNew = async (data) => {
   try {
+    const { boardId, columnId } = data
+
+    const board = await BoardModel.getOneById(boardId)
+
+    if (!board) {
+      throw new BadRequest400Error('Can not find this board')
+    }
+
+    const column = await ColumnModel.getColumn(columnId)
+
+    if (!column || column.boardId.toString() !== board._id.toString()) {
+      throw new BadRequest400Error('Can not find this column in board')
+    }
+
+    // Add workplaceId to data
+    data.workplaceId = board.workplaceId.toString()
+
     const result = await CardModel.createNew(data)
     const newCardId = result.insertedId
 
     const newCard = await CardModel.getOneById(newCardId)
     // Push card id to card order in column collection
-    const columnId = newCard.columnId.toString()
+    // const columnId = newCard.columnId.toString()
     await ColumnModel.pushCardOrder(columnId, newCardId.toString())
 
     await OwnershipService.pushCardOrder(data.userId, newCard._id.toString())
@@ -43,6 +61,7 @@ const update = async (id, data) => {
     }
 
     if (updateData._id) delete updateData._id
+    if (updateData.users) delete updateData.users
 
     const updatedCard = await CardModel.update(id, updateData)
 
@@ -201,33 +220,102 @@ const getBoardId = async (cardId) => {
   }
 }
 
-const addUser = async (userId, cardId) => {
+const addUser = async (req) => {
+  const { id } = req.params
+  const { email } = req.body
 
-  // const board = await BoardModel.getOneByOwnerAndId(id, userId)
-
-  // if (!board) {
-  //   throw new NotPermission403Error('User not owner board')
-  // }
-
-  const card = await getCard(cardId)
+  const card = await getCard(id)
 
   if (!card) {
     throw new BadRequest400Error('Can not find card Id')
   }
 
-  const checkBoardUser = await OwnershipService.checkBoardUser(card.boardId.toString(), userId)
+  const userAdded = await UserModel.getOneByEmail(email)
+
+  if (!userAdded) {
+    throw new BadRequest400Error('User with email not exist')
+  }
+
+  const checkBoardUser = await OwnershipService.checkBoardUser(card.boardId.toString(), userAdded._id.toString())
 
   if (!checkBoardUser) {
     throw new NotPermission403Error('Added User not in board')
   }
 
-  await OwnershipService.pushCardOrder(userId, cardId)
+  await OwnershipService.pushCardOrder(userAdded._id.toString(), id)
 
   const insertData = {
-    userId: userId
+    userId: userAdded._id.toString()
   }
 
-  const result = await CardModel.addUser(cardId, insertData)
+  const result = await CardModel.addUser(id, insertData)
+
+  return result
+}
+
+const searchUsers = async (req) => {
+  const { id } = req.params
+  const { keyword, page } = req.body
+
+  const card = await getCard(id)
+
+  if (!card) {
+    throw new BadRequest400Error('Can not find card Id')
+  }
+
+  const users = await CardModel.searchUsers(id, keyword, page)
+
+  return users
+}
+
+const searchUsersToAdd = async (req) => {
+  const { id, userId } = req.params
+  const { keyword, page } = req.body
+
+  const card = await CardModel.getCard(id)
+
+  if (!card) {
+    throw new NotPermission403Error('User not owner card')
+  }
+
+  if (!keyword) {
+    return []
+  }
+
+  const boardId = card.boardId.toString()
+
+
+  const users = await UserModel.searchUsersToAddCard(boardId, id, keyword, page)
+
+  return users
+}
+
+const deleteUser = async (req) => {
+  const { id, userId } = req.params
+  const { email } = req.body
+
+  const card = await CardModel.getCard(id)
+
+  if (!card) {
+    throw new NotPermission403Error('User not owner card')
+  }
+
+  const userAdded = await UserModel.getOneByEmail(email)
+
+  if (!userAdded) {
+    throw new BadRequest400Error('User with email not exist')
+  }
+
+  const isUserExistInCard = await CardModel.checkUserExist(id, userAdded._id.toString())
+
+
+  if (!isUserExistInCard) {
+    throw new BadRequest400Error('User not exist in card')
+  }
+
+  await OwnershipService.popCardOrder(userAdded._id.toString(), id)
+
+  const result = await CardModel.deleteUser(id, userAdded._id.toString())
 
   return result
 }
@@ -266,6 +354,38 @@ const getCalendarCards = async (data) => {
   }
 }
 
+const getCardCount = async (workplaceId) => {
+  try {
+    return await CardModel.getCardCount(workplaceId)
+  } catch (error) {
+    throw new Error(error)
+  }
+
+}
+
+const getCardCountFromBoard = async (boardId) => {
+  try {
+    return await CardModel.getCardCountFromBoard(boardId)
+  } catch (error) {
+    throw new Error(error)
+  }
+
+}
+
+const getCardsStatusStatistic = async (boardId, startTime, endTime) => {
+
+  const result = await CardModel.getCardsStatusStatistic(boardId, startTime, endTime)
+
+  return result
+}
+
+const getCardsStatusFullStatistic = async (workplaceId) => {
+
+  const result = await CardModel.getCardsStatusFullStatistic(workplaceId)
+
+  return result
+}
+
 export const CardService = {
   createNew,
   update,
@@ -274,5 +394,12 @@ export const CardService = {
   getBoardId,
   getCard,
   addUser,
-  getCalendarCards
+  getCalendarCards,
+  searchUsers,
+  searchUsersToAdd,
+  deleteUser,
+  getCardCount,
+  getCardsStatusStatistic,
+  getCardsStatusFullStatistic,
+  getCardCountFromBoard
 }

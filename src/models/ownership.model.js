@@ -22,7 +22,12 @@ const ownershipCollectionSchema = Joi.object({
   ).default([]),
   cardOrder: Joi.array().items(
     Joi.object({
-      boardId: Joi.string().required().min(3).trim()
+      cardId: Joi.string().required().min(3).trim()
+    })
+  ).default([]),
+  taskOrder: Joi.array().items(
+    Joi.object({
+      taskId: Joi.string().required().min(3).trim()
     })
   ).default([]),
   createdAt: Joi.date().timestamp().default(Date.now()),
@@ -121,6 +126,8 @@ const pushWorkplaceOrder = async (userId, workplaceId, role, active) => {
  *
  * @param {string} userId
  * @param {string} boardId
+ * @param {number} role
+ * @param {boolean} active
  * @returns
  */
 const pushBoardOrder = async (userId, boardId, role, active) => {
@@ -134,6 +141,107 @@ const pushBoardOrder = async (userId, boardId, role, active) => {
     const result = await getDB().collection(ownershipCollectionName).findOneAndUpdate(
       { userId: ObjectId(userId) },
       { $push: { boardOrder: insert_data } },
+      { returnOriginal: false }
+    )
+
+    return result.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+/**
+ *
+ * @param {string} userId
+ * @param {string} boardId
+ * @returns
+ */
+const popBoardOrder = async (userId, boardId) => {
+  try {
+
+    const result = await getDB().collection(ownershipCollectionName).findOneAndUpdate(
+      { userId: ObjectId(userId) },
+      { $pull: { boardOrder: { boardId: ObjectId(boardId) } } },
+      { returnOriginal: false }
+    )
+
+    return result.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+/**
+ *
+ * @param {string} userId
+ * @param {string} cardId
+ * @returns
+ */
+const popCardOrder = async (userId, cardId) => {
+  try {
+
+    const result = await getDB().collection(ownershipCollectionName).findOneAndUpdate(
+      { userId: ObjectId(userId) },
+      { $pull: { cardOrder: { cardId: ObjectId(cardId) } } },
+      { returnOriginal: false }
+    )
+
+    return result.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+/**
+ *
+ * @param {string} userId
+ * @param {string} cardId
+ * @returns
+ */
+const popTaskOrder = async (userId, taskId) => {
+  try {
+    if (userId === '') {
+      const result = await getDB().collection(ownershipCollectionName).updateMany(
+        { 'taskOrder.taskId': ObjectId(taskId) },
+        { $pull: { taskOrder: { taskId: ObjectId(taskId) } } },
+        { returnOriginal: false }
+      )
+
+      return result
+
+    } else {
+      const result = await getDB().collection(ownershipCollectionName).findOneAndUpdate(
+        { userId: ObjectId(userId) },
+        { $pull: { taskOrder: { taskId: ObjectId(taskId) } } },
+        { returnOriginal: false }
+      )
+
+      return result.value
+    }
+
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+/**
+ *
+ * @param {string} userId
+ * @param {string} boardId
+ * @param {number} role
+ * @param {boolean} active
+ * @returns
+ */
+const updateBoardOrder = async (userId, boardId, role) => {
+  try {
+
+    const result = await getDB().collection(ownershipCollectionName).findOneAndUpdate(
+      {
+        userId: ObjectId(userId),
+        'boardOrder.boardId': ObjectId(boardId)
+      },
+      { $set: { 'boardOrder.$.role': role } },
       { returnOriginal: false }
     )
 
@@ -226,6 +334,30 @@ const pushCardOrder = async (userId, cardId) => {
   }
 }
 
+/**
+ *
+ * @param {string} userId
+ * @param {string} boardId
+ * @returns
+ */
+const pushTaskOrder = async (userId, taskId) => {
+  try {
+    const insert_data = {
+      taskId: ObjectId(taskId)
+    }
+
+    const result = await getDB().collection(ownershipCollectionName).findOneAndUpdate(
+      { userId: ObjectId(userId) },
+      { $push: { taskOrder: insert_data } },
+      { returnOriginal: false }
+    )
+
+    return result.value
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const OwnershipModel = {
   createNew,
   getOwnershipByUserId,
@@ -236,5 +368,11 @@ export const OwnershipModel = {
   checkWorkplaceAdmin,
   checkBoardAdmin,
   checkBoardUser,
-  pushCardOrder
+  pushCardOrder,
+  popBoardOrder,
+  updateBoardOrder,
+  popCardOrder,
+  pushTaskOrder,
+  popTaskOrder,
+  ownershipCollectionName
 }

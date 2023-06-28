@@ -91,6 +91,50 @@ const pushBoardOrder = async (userId, boardId, role, active) => {
   }
 }
 
+const popBoardOrder = async (userId, boardId) => {
+  try {
+
+    const updateOwnership = await OwnershipModel.popBoardOrder(userId, boardId)
+
+    return updateOwnership
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const popCardOrder = async (userId, cardId) => {
+  try {
+
+    const updateOwnership = await OwnershipModel.popCardOrder(userId, cardId)
+
+    return updateOwnership
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const popTaskOrder = async (userId, taskId) => {
+  try {
+
+    const updateOwnership = await OwnershipModel.popTaskOrder(userId, taskId)
+
+    return updateOwnership
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const updateBoardOrder = async (userId, boardId, role) => {
+  try {
+
+    const updateOwnership = await OwnershipModel.updateBoardOrder(userId, boardId, role)
+
+    return updateOwnership
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const checkWorkplaceAdmin = async (workplaceId, userId) => {
   try {
 
@@ -135,6 +179,17 @@ const pushCardOrder = async (userId, cardId) => {
   }
 }
 
+const pushTaskOrder = async (userId, taskId) => {
+  try {
+
+    const updateOwnership = await OwnershipModel.pushTaskOrder(userId, taskId)
+
+    return updateOwnership
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const OwnershipService = {
   createNew,
   getOwnershipByUserId,
@@ -145,5 +200,10 @@ export const OwnershipService = {
   checkWorkplaceAdmin,
   checkBoardAdmin,
   checkBoardUser,
-  pushCardOrder
+  pushCardOrder,
+  popBoardOrder,
+  updateBoardOrder,
+  popCardOrder,
+  pushTaskOrder,
+  popTaskOrder
 }

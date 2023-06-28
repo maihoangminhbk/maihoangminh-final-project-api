@@ -9,8 +9,21 @@ import { CardService } from './card.service'
 
 const createNew = async (data) => {
   try {
+    const { cardId, userId } = data
+    const card = await CardModel.getCard(cardId)
+
+    if (!card) {
+      throw new BadRequest400Error('Can not find card Id')
+    }
+
+    data.workplaceId = card.workplaceId.toString()
+    data.boardId = card.boardId.toString()
+
     const result = await TaskModel.createNew(data)
+
     const newTaskId = result.insertedId
+
+    await OwnershipService.pushTaskOrder(userId, newTaskId.toString())
 
     const newTask = await TaskModel.getOneById(newTaskId)
     // Push task id to task order in card collection
@@ -32,10 +45,15 @@ const update = async (id, data) => {
     }
 
     if (updateData._id) delete updateData._id
+    if (updateData.users) delete updateData.users
 
-    const updatedCard = await CardModel.update(id, updateData)
+    const updatedTask = await TaskModel.update(id, updateData)
 
-    return updatedCard
+    if (updateData._destroy) {
+      await OwnershipService.popTaskOrder('', updatedTask._id.toString())
+    }
+
+    return updatedTask
   } catch (error) {
     throw new Error(error)
   }
@@ -205,7 +223,7 @@ const addUser = async (req) => {
   }
 
 
-  await CardService.addUser(userAdded._id.toString(), task.cardId.toString())
+  // await CardService.addUser(userAdded._id.toString(), task.cardId.toString())
 
 
   const insertData = {
@@ -218,10 +236,131 @@ const addUser = async (req) => {
   return result
 }
 
+const searchUsers = async (req) => {
+  const { id } = req.params
+  const { keyword, page } = req.body
+
+  const task = await getTask(id)
+
+  if (!task) {
+    throw new BadRequest400Error('Can not find task Id')
+  }
+
+  const users = await TaskModel.searchUsers(id, keyword, page)
+
+  return users
+}
+
+const searchUsersToAdd = async (req) => {
+  const { id, userId } = req.params
+  const { keyword, page } = req.body
+
+  const task = await getTask(id)
+
+  if (!task) {
+    throw new BadRequest400Error('Can not find task Id')
+  }
+
+  if (!keyword) {
+    return []
+  }
+
+  const cardId = task.cardId.toString()
+
+
+  const users = await UserModel.searchUsersToAddTask(cardId, id, keyword, page)
+
+  return users
+}
+
+const deleteUser = async (req) => {
+  const { id, userId } = req.params
+  const { email } = req.body
+
+  const task = await getTask(id)
+
+  if (!task) {
+    throw new BadRequest400Error('Can not find task Id')
+  }
+
+  const userAdded = await UserModel.getOneByEmail(email)
+
+  if (!userAdded) {
+    throw new BadRequest400Error('User with email not exist')
+  }
+
+  const isUserExistInTask = await TaskModel.checkUserExist(id, userAdded._id.toString())
+
+
+  if (!isUserExistInTask) {
+    throw new BadRequest400Error('User not exist in task')
+  }
+
+  await OwnershipService.popTaskOrder(userAdded._id.toString(), id)
+
+  const result = await TaskModel.deleteUser(id, userAdded._id.toString())
+
+  return result
+}
+
+const getTasksStatusStatistic = async (boardId, startTime, endTime) => {
+  const result = await TaskModel.getTasksStatusStatistic(boardId, startTime, endTime)
+
+  return result
+}
+
+const getTasksStatusFullStatistic = async (workplaceId) => {
+
+  const result = await TaskModel.getTasksStatusFullStatistic(workplaceId)
+
+  return result
+}
+
+const getTaskCount = async (workplaceId) => {
+  try {
+    return await TaskModel.getTaskCount(workplaceId)
+  } catch (error) {
+    throw new Error(error)
+  }
+
+}
+
+const getTaskCountFromBoard = async (boardId) => {
+  try {
+    return await TaskModel.getTaskCountFromBoard(boardId)
+  } catch (error) {
+    throw new Error(error)
+  }
+
+}
+
+const getTasksStatusInYearStatistic = async (boardId, year) => {
+  try {
+    let validatedYear = year
+
+    if (!validatedYear) {
+      validatedYear = new Date().getFullYear()
+    }
+
+    return await TaskModel.getTasksStatusInYearStatistic(boardId, validatedYear)
+  } catch (error) {
+    throw new Error(error)
+  }
+
+}
+
 export const TaskService = {
   createNew,
   update,
   // uploadImage,
   // getImageUrl
-  addUser
+  addUser,
+  searchUsers,
+  searchUsersToAdd,
+  deleteUser,
+  getTasksStatusStatistic,
+  getTaskCount,
+  getTasksStatusFullStatistic,
+  getTasksStatusInYearStatistic,
+  getTaskCountFromBoard
 }

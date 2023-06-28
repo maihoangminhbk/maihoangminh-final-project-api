@@ -15,6 +15,22 @@ router.route('/:id')
   .put(auth, TaskValidation.update, TaskController.update)
 
 router.route('/:id/add-user')
-  .post(auth, TaskController.addUser)
+  .post(auth, TaskValidation.addUser, TaskController.addUser)
+
+router.route('/:id/delete-user')
+  .post(auth, TaskController.deleteUser)
+
+// router.route('/:id/update-user')
+//   .post(auth, authorization(ROLE.BOARD_ADMIN), CardController.updateUser)
+
+router.route('/:id/search-users')
+  .post(auth, TaskController.searchUsers)
+
+router.route('/:id/search-users-to-add')
+  .post(auth, TaskController.searchUsersToAdd)
+
+// router.route('/:id/add-user')
+//   .post(auth, TaskController.addUser)
+
 
 export const taskRoutes = router

@@ -4,7 +4,14 @@ import { HttpStatusCode } from '*/ultilities/constants'
 
 const createNew = async (req, res) => {
   try {
-    const result = await TaskService.createNew(req.body)
+    const { userId } = req.params
+
+    const data = {
+      ...req.body,
+      userId: userId
+    }
+
+    const result = await TaskService.createNew(data)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({
@@ -45,10 +52,40 @@ const addUser = async (req, res, next) => {
   }
 }
 
+const searchUsers = async (req, res, next) => {
+  try {
+    const result = await TaskService.searchUsers(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const searchUsersToAdd = async (req, res, next) => {
+  try {
+    const result = await TaskService.searchUsersToAdd(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const deleteUser = async (req, res, next) => {
+  try {
+    const result = await TaskService.deleteUser(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 
 export const TaskController = {
   createNew,
   update,
   // uploadImage
-  addUser
+  addUser,
+  searchUsers,
+  searchUsersToAdd,
+  deleteUser
 }
