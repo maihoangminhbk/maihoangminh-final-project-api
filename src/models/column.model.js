@@ -33,6 +33,18 @@ const createNew = async (data) => {
   }
 }
 
+const getColumn = async (id) => {
+  try {
+
+    const result = await getDB().collection(columnCollectionName).findOne({ _id: ObjectId(id) })
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const getOneById = async (id) => {
   try {
 
@@ -107,6 +119,7 @@ const getBoardId = async (columnId) => {
 export const ColumnModel = {
   columnCollectionName,
   createNew,
+  getColumn,
   update,
   pushCardOrder,
   getOneById,

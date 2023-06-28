@@ -18,6 +18,18 @@ router.route('/:id')
 router.route('/:id/add-user')
   .post(auth, authorization(ROLE.BOARD_ADMIN), BoardController.addUser)
 
+router.route('/:id/delete-user')
+  .post(auth, authorization(ROLE.BOARD_ADMIN), BoardController.deleteUser)
+
+router.route('/:id/update-user')
+  .post(auth, authorization(ROLE.BOARD_ADMIN), BoardController.updateUser)
+
+router.route('/:id/search-users')
+  .post(auth, BoardController.searchUsers)
+
+router.route('/:id/search-users-to-add')
+  .post(auth, BoardController.searchUsersToAdd)
+
 router.route('/:id/users')
   .get(auth, BoardController.getUsers)
 

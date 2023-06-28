@@ -48,9 +48,45 @@ const addUser = async (req, res, next) => {
   }
 }
 
+const deleteUser = async (req, res, next) => {
+  try {
+    const result = await BoardService.deleteUser(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const updateUser = async (req, res, next) => {
+  try {
+    const result = await BoardService.updateUser(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const getUsers = async (req, res, next) => {
   try {
     const result = await BoardService.getUsers(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const searchUsers = async (req, res, next) => {
+  try {
+    const result = await BoardService.searchUsers(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const searchUsersToAdd = async (req, res, next) => {
+  try {
+    const result = await BoardService.searchUsersToAdd(req)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     next(error)
@@ -63,5 +99,9 @@ export const BoardController = {
   getFullBoard,
   update,
   addUser,
-  getUsers
+  getUsers,
+  searchUsers,
+  searchUsersToAdd,
+  deleteUser,
+  updateUser
 }

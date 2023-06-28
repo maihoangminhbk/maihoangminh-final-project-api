@@ -56,6 +56,15 @@ const getUsers = async (req, res, next) => {
   }
 }
 
+const searchUsers = async (req, res, next) => {
+  try {
+    const result = await WorkplaceService.searchUsers(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const addBoard = async (req, res, next) => {
   try {
     const { id } = req.params
@@ -73,5 +82,6 @@ export const WorkplaceController = {
   update,
   addUser,
   getUsers,
+  searchUsers,
   addBoard
 }

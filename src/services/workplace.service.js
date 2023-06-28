@@ -105,9 +105,6 @@ const addUser = async (req) => {
 
   const isUserExist = await WorkplaceModel.checkUserExist(id, userAdded._id.toString())
 
-  console.log('workplace service - workplaceId userId', id, userAdded._id.toString())
-  console.log('workplace service - is user exist', isUserExist)
-
 
   if (isUserExist) {
     throw new Conflict409Error('User permission exist in workplace')
@@ -144,6 +141,25 @@ const getUsers = async (req) => {
   return users
 }
 
+const searchUsers = async (req) => {
+  const { id, userId } = req.params
+  const { keyword, page } = req.body
+
+  const workplace = await WorkplaceModel.getOneById(id)
+
+  if (!workplace) {
+    throw new NotPermission403Error('User not owner workplace')
+  }
+
+  if (!keyword) {
+    return []
+  }
+
+  const users = await UserModel.searchUsers(id, keyword, page)
+
+  return users
+}
+
 const addBoard = async (workplaceId, data) => {
   const boardData = data
 
@@ -161,9 +177,12 @@ const addBoard = async (workplaceId, data) => {
 }
 
 const checkUserExist = async (workplaceId, userId) => {
-  return WorkplaceModel.checkUserExist(workplaceId, userId)
+  return await WorkplaceModel.checkUserExist(workplaceId, userId)
 }
 
+const getUserCount = async (workplaceId) => {
+  return await WorkplaceModel.getUserCount(workplaceId)
+}
 // const checkWorkplaceAdmin = async (workplaceId, userId) => {
 //   return WorkplaceModel.checkWorkplaceAdmin(workplaceId, userId)
 // }
@@ -176,7 +195,9 @@ export const WorkplaceService = {
   addUser,
   getUsers,
   addBoard,
-  checkUserExist
+  checkUserExist,
+  searchUsers,
+  getUserCount
   // checkWorkplaceAdmin
 }
 

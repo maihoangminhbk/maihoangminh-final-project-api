@@ -20,6 +20,7 @@ import { WebClient } from '@slack/web-api'
 
 const hostname = env.APP_HOST
 const port = env.APP_PORT
+// const port = process.env.PORT || 80
 const socketHost = env.SOCKET_HOST
 const sessionSecret = env.SESSION_SECRET
 
@@ -58,17 +59,16 @@ const bootServer = () => {
   // Use APIs v1
   app.use('/v1', apiV1)
 
-  // app.listen(port, hostname, () => {
+  // app.listen(port,
+  //   // hostname,
+  //   () => {
   //   // eslint-disable-next-line no-console
-  //   console.log(`Hello, Iam running at ${hostname}:${port}/`)
-  // })
+  //   // console.log(`Hello, Iam running at ${hostname}:${port}/`)
+  //   })
 
   // Socket server
   io.of('/v1/board').on('connection', boardConnection)
   io.of('/v1/chatbot').on('connection', chatbotConnection)
-
-  // Https Server
-  // const client = new WebClient()
 
   // app.get('/auth/slack', async (_, res) => {
   //   const scopes = 'identity.basic,identity.email'
@@ -163,28 +163,28 @@ const bootServer = () => {
 
   // })
 
-  app.get('/get-channels', async (req, res) => {
-    try {
-      // const conversationId = 'default-channel'
-      const client = new WebClient()
-      const token = 'xoxb-5347780689952-5324211349314-FinjYRS3bxtKzE6GH5PMlqjv'
+  // app.get('/get-channels', async (req, res) => {
+  //   try {
+  //     // const conversationId = 'default-channel'
+  //     const client = new WebClient()
+  //     const token = 'xoxb-5347780689952-5324211349314-FinjYRS3bxtKzE6GH5PMlqjv'
 
-      // Post a message to the channel, and await the result.
-      // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
-      const response = await client.apiCall('conversations.list', {
-        token: token
-      })
+  //     // Post a message to the channel, and await the result.
+  //     // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
+  //     const response = await client.apiCall('conversations.list', {
+  //       token: token
+  //     })
 
-      // The result contains an identifier for the message, `ts`.
-      console.log(`Successfully send message ${response.ts} is: ${response}`)
-      console.log('respond', response)
+  //     // The result contains an identifier for the message, `ts`.
+  //     console.log(`Successfully send message ${response.ts} is: ${response}`)
+  //     console.log('respond', response)
 
-      res.send(response)
-    } catch (error) {
-      console.log(error)
-    }
+  //     res.send(response)
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
 
-  })
+  // })
 
   // app.get('/join-channels', async (req, res) => {
   //   try {

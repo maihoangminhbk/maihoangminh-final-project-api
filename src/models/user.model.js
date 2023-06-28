@@ -1,6 +1,8 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { getDB } from '*/config/mongodb'
+import { OwnershipModel } from './ownership.model'
+import { ROWS_NUMBER } from '../ultilities/constants'
 
 // Define board collection
 const userCollectionName = 'users'
@@ -77,51 +79,236 @@ const getOneById = async (id) => {
   }
 }
 
-// /**
-//  *
-//  * @param {string} boardId
-//  * @param {string} columnId
-//  * @returns
-//  */
-// const pushColumnOrder = async (boardId, columnId) => {
-//   try {
-//     const result = await getDB().collection(boardCollectionName).findOneAndUpdate(
-//       { _id: ObjectId(boardId) },
-//       { $push: { columnOrder: columnId } },
-//       { returnOriginal: false }
-//     )
+const searchUsers = async (workplaceId, keyword, page) => {
+  try {
+    const PAGE_SIZE = ROWS_NUMBER.USER_LIST_DROPDOWN // Similar to 'limit'
+    const skip = (page - 1) * PAGE_SIZE
 
-//     return result.value
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
+    const result = await getDB().collection(userCollectionName).aggregate([
+      { $match: {
+        $or: [
+          { name : { $regex : keyword } },
+          { email : { $regex : keyword } }
+        ],
+        // userInfo: { $elemMatch: {
+        //   workplaceOrder: { $elemMatch: {
+        //     workplaceId: { $ne: ObjectId(workplaceId) }
+        //   }
+        //   }
+        // } },
+        _destroy: false
+      } },
+      { $lookup: {
+        from: OwnershipModel.ownershipCollectionName,
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userInfo'
+        // pipeline: [
+        //   { $match: {
+        //     workplaceOrder: { $elemMatch: {
+        //       workplaceId: ObjectId(workplaceId)
+        //     }
+        //     }
+        //   } }
+        // ]
+      } },
+      {
+        $match: {
+          'userInfo.workplaceOrder.workplaceId': {
+            $ne: ObjectId(workplaceId)
+          }
+        }
+      },
+      // { $project: {
+      //   '_id': 1,
+      //   'name': 1,
+      //   'email': 1,
+      //   'cover': 1
+      // } },
+      { $skip: skip },
+      { $limit: PAGE_SIZE }
+    ]).toArray()
+    return result
 
-// const getFullBoard = async (boardId) => {
-//   try {
-//     const result = await getDB().collection(boardCollectionName).aggregate([
-//       { $match: { 
-//         _id: ObjectId(boardId),
-//         _destroy: false
-//       } },
-//       { $lookup: {
-//         from: ColumnModel.columnCollectionName,
-//         localField: '_id',
-//         foreignField: 'boardId',
-//         as: 'columns' } },
-//       { $lookup: {
-//         from: CardModel.cardCollectionName,
-//         localField: '_id',
-//         foreignField: 'boardId',
-//         as: 'cards' } }
-//     ]).toArray()
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
-//     console.log(result)
-//     return result[0] || {}
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
+const searchUsersToAddBoard = async (workplaceId, boardId, keyword, page) => {
+  try {
+    const PAGE_SIZE = ROWS_NUMBER.USER_LIST_DROPDOWN // Similar to 'limit'
+    const skip = (page - 1) * PAGE_SIZE
+
+    console.log(workplaceId, boardId, keyword, page)
+
+    const result = await getDB().collection(userCollectionName).aggregate([
+      { $match: {
+        $or: [
+          { name : { $regex : keyword } },
+          { email : { $regex : keyword } }
+        ],
+        _destroy: false
+      } },
+      { $lookup: {
+        from: OwnershipModel.ownershipCollectionName,
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userInfo'
+      } },
+      {
+        $match: {
+          'userInfo.workplaceOrder.workplaceId': ObjectId(workplaceId),
+          'userInfo.boardOrder.boardId': {
+            $ne: ObjectId(boardId)
+          }
+        }
+
+      },
+      { $project: {
+        '_id': 1,
+        'name': 1,
+        'email': 1,
+        'cover': 1
+      } },
+      { $skip: skip },
+      { $limit: PAGE_SIZE }
+    ]).toArray()
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const searchUsersToAddCard = async (boardId, cardId, keyword, page) => {
+  try {
+    const PAGE_SIZE = ROWS_NUMBER.USER_LIST_DROPDOWN // Similar to 'limit'
+    const skip = (page - 1) * PAGE_SIZE
+
+    const result = await getDB().collection(userCollectionName).aggregate([
+      { $match: {
+        $or: [
+          { name : { $regex : keyword } },
+          { email : { $regex : keyword } }
+        ],
+        _destroy: false
+      } },
+      { $lookup: {
+        from: OwnershipModel.ownershipCollectionName,
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userInfo'
+      } },
+      {
+        $match: {
+          'userInfo.boardOrder.boardId': ObjectId(boardId),
+          'userInfo.cardOrder.cardId': {
+            $ne: ObjectId(cardId)
+          }
+        }
+
+      },
+      { $project: {
+        '_id': 1,
+        'name': 1,
+        'email': 1,
+        'cover': 1
+      } },
+      { $skip: skip },
+      { $limit: PAGE_SIZE }
+    ]).toArray()
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const searchUsersToAddTask = async (cardId, taskId, keyword, page) => {
+  try {
+    const PAGE_SIZE = ROWS_NUMBER.USER_LIST_DROPDOWN // Similar to 'limit'
+    const skip = (page - 1) * PAGE_SIZE
+
+    const result = await getDB().collection(userCollectionName).aggregate([
+      { $match: {
+        $or: [
+          { name : { $regex : keyword } },
+          { email : { $regex : keyword } }
+        ],
+        _destroy: false
+      } },
+      { $lookup: {
+        from: OwnershipModel.ownershipCollectionName,
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userInfo'
+      } },
+      {
+        $match: {
+          'userInfo.cardOrder.cardId': ObjectId(cardId),
+          'userInfo.taskOrder.taskId': {
+            $ne: ObjectId(taskId)
+          }
+        }
+
+      },
+      { $project: {
+        '_id': 1,
+        'name': 1,
+        'email': 1,
+        'cover': 1
+      } },
+      { $skip: skip },
+      { $limit: PAGE_SIZE }
+    ]).toArray()
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const getUsersInfoStatistic = async (boardId, keyword, page) => {
+  try {
+    const PAGE_SIZE = ROWS_NUMBER.USER_LIST_DROPDOWN // Similar to 'limit'
+    const skip = (page - 1) * PAGE_SIZE
+
+    const result = await getDB().collection(userCollectionName).aggregate([
+      { $match: {
+        $or: [
+          { name : { $regex : keyword } },
+          { email : { $regex : keyword } }
+        ],
+        _destroy: false
+      } },
+      { $lookup: {
+        from: OwnershipModel.ownershipCollectionName,
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userInfo'
+      } },
+      {
+        $match: {
+          'userInfo.boardOrder.boardId': ObjectId(boardId)
+        }
+      },
+      // { $project: {
+      //   '_id': 1,
+      //   'name': 1,
+      //   'email': 1,
+      //   'cover': 1
+      // } },
+      { $skip: skip },
+      { $limit: PAGE_SIZE }
+    ]).toArray()
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 
 export const UserModel = {
   getOneByEmail,
@@ -129,6 +316,11 @@ export const UserModel = {
   userCollectionName,
   // getFullBoard,
   // pushColumnOrder,
-  getOneById
+  getOneById,
+  searchUsers,
+  searchUsersToAddBoard,
+  searchUsersToAddCard,
+  searchUsersToAddTask,
+  getUsersInfoStatistic
   // update
 }

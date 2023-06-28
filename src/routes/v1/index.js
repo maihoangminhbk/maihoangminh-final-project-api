@@ -9,6 +9,7 @@ import { workplaceRoutes } from './workplace.route'
 import { ownershipRoutes } from './ownership.route'
 import { notificationRoutes } from './notification.route'
 import { slackRoutes } from './slack.route'
+import { dashboardRoutes } from './dashboard.route'
 
 import { logError, returnError, logErrorMiddleware } from '*/middlewares/errorsHandler'
 
@@ -65,6 +66,11 @@ router.use('/notifications', notificationRoutes)
  * Slack API
  */
 router.use('/slack', slackRoutes)
+
+/**
+ * Dashboard API
+ */
+router.use('/dashboard', dashboardRoutes)
 
 router.use(returnError)
 

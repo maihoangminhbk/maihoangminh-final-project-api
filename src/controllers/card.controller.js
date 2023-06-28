@@ -71,8 +71,34 @@ const getCalendarCards = async (req, res, next) => {
 
 const addUser = async (req, res, next) => {
   try {
-    const { id } = req.params
-    const result = await CardService.addUser(req.body.userId, id)
+    const result = await CardService.addUser(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const searchUsers = async (req, res, next) => {
+  try {
+    const result = await CardService.searchUsers(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const searchUsersToAdd = async (req, res, next) => {
+  try {
+    const result = await CardService.searchUsersToAdd(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const deleteUser = async (req, res, next) => {
+  try {
+    const result = await CardService.deleteUser(req)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     next(error)
@@ -86,5 +112,8 @@ export const CardController = {
   uploadImage,
   getCard,
   getCalendarCards,
-  addUser
+  addUser,
+  searchUsers,
+  searchUsersToAdd,
+  deleteUser
 }

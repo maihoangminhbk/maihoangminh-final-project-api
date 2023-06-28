@@ -17,7 +17,6 @@ const authorization = function(role) {
           id = req.body.workplaceId
         }
         const ownership = await OwnershipService.checkWorkplaceAdmin(id, userId)
-        console.log('authorization - ownership check workplace admin', ownership)
 
         if (!ownership) {
           throw new Unauthorized401Error('Only workplace admin can perform this action')
@@ -48,7 +47,6 @@ const authorization = function(role) {
         }
 
         const ownership = await OwnershipService.checkBoardAdmin(boardId, userId)
-        console.log('authorization - ownership check board admin', ownership)
 
         if (!ownership) {
           throw new Unauthorized401Error('Only board admin can perform this action')
@@ -78,7 +76,6 @@ const authorization = function(role) {
         }
 
         const ownership = await OwnershipService.checkBoardUser(boardId, userId)
-        console.log('authorization - ownership check board user', ownership)
 
         if (!ownership) {
           throw new Unauthorized401Error('Only board user can perform this action')

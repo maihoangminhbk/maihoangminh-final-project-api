@@ -18,6 +18,10 @@ router.route('/:id/add-user')
 
 router.route('/:id/users')
   .get(auth, WorkplaceController.getUsers)
+
+router.route('/:id/search-users')
+  .post(auth, WorkplaceController.searchUsers)
+
 router.route('/:id/add-board')
   .post(auth, authorization(ROLE.WORKPLACE_ADMIN), WorkplaceController.addBoard)
 

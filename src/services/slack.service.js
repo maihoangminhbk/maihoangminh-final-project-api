@@ -38,7 +38,6 @@ const auth = async (req) => {
 
 const callback = async (req) => {
   try {
-    console.log('vao callback')
     const client = new WebClient()
 
     const workplaceId = req.query.state
