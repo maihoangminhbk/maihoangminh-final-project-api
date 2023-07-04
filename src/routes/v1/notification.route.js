@@ -14,4 +14,10 @@ router.route('/:id')
   .get(auth, NotificationController.getNotification)
   .put(auth, NotificationController.update)
 
+router.route('/:id/get-personal-notifications')
+  .get(auth, NotificationController.getPersonalNotifications)
+
+router.route('/:id/get-following-notifications')
+  .get(auth, NotificationController.getFollowingNotifications)
+
 export const notificationRoutes = router

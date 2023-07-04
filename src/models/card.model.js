@@ -3,6 +3,8 @@ import { getDB } from '*/config/mongodb'
 import { ObjectId } from 'mongodb'
 import { TaskModel } from './task.model'
 import { UserModel } from './user.model'
+import { NotificationModel } from './notification.model'
+import { BoardModel } from './board.model'
 
 
 import { ROWS_NUMBER } from '../ultilities/constants'
@@ -122,7 +124,7 @@ const getCard = async (cardId) => {
 const getOneById = async (id) => {
   try {
 
-    const result = await getDB().collection(cardCollectionName).findOne({ _id: id })
+    const result = await getDB().collection(cardCollectionName).findOne({ _id: ObjectId(id) })
 
     return result
 
@@ -432,6 +434,88 @@ const getCardsStatusFullStatistic = async (workplaceId) => {
   }
 }
 
+const checkCardDeadline = async (afterDay) => {
+  try {
+    let someDate = new Date()
+
+    let dateResult = someDate.setDate(someDate.getDate() + afterDay)
+    dateResult = new Date(dateResult).getTime()
+    const result = await getDB().collection(cardCollectionName).aggregate([
+      { $match: {
+        endTime: { $lte: dateResult },
+        status: 1,
+        _destroy: false
+      } },
+      { $lookup: {
+        from: NotificationModel.notificationCollectionName,
+        localField: '_id',
+        foreignField: 'objectTargetId',
+        as: 'notification',
+        pipeline: [
+          { $match: {
+            notificationType: 'deadline',
+            _destroy: false
+          } }
+        ]
+      } },
+      { $match: {
+        $or: [
+          { notification:  { $exists: false } },
+          { notification:  { $eq: [] } }
+        ]
+      } },
+      { $lookup: {
+        from: UserModel.userCollectionName,
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'usersInfo'
+      } },
+      { $lookup: {
+        from: BoardModel.boardCollectionName,
+        localField: 'boardId',
+        foreignField: '_id',
+        as: 'boardInfo'
+      } }
+    ]).toArray()
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const checkCardLate = async (afterDay) => {
+  try {
+    let someDate = new Date()
+
+    let dateResult = someDate.setDate(someDate.getDate() + afterDay)
+    dateResult = new Date(dateResult).getTime()
+    const result = await getDB().collection(cardCollectionName).aggregate([
+      { $match: {
+        endTime: { $lte: dateResult },
+        status: 1,
+        _destroy: false
+      } },
+      { $lookup: {
+        from: UserModel.userCollectionName,
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'usersInfo'
+      } },
+      { $lookup: {
+        from: BoardModel.boardCollectionName,
+        localField: 'boardId',
+        foreignField: '_id',
+        as: 'boardInfo'
+      } }
+    ]).toArray()
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const CardModel = {
   cardCollectionName,
   createNew,
@@ -448,5 +532,7 @@ export const CardModel = {
   getCardCount,
   getCardsStatusStatistic,
   getCardsStatusFullStatistic,
-  getCardCountFromBoard
+  getCardCountFromBoard,
+  checkCardDeadline,
+  checkCardLate
 }

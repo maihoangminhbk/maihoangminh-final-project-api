@@ -35,9 +35,29 @@ const getNotification = async (req, res, next) => {
   }
 }
 
+const getPersonalNotifications = async (req, res, next) => {
+  try {
+    const result = await NotificationService.getPersonalNotifications(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getFollowingNotifications = async (req, res, next) => {
+  try {
+    const result = await NotificationService.getFollowingNotifications(req)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 
 export const NotificationController = {
   createNew,
   update,
-  getNotification
+  getNotification,
+  getPersonalNotifications,
+  getFollowingNotifications
 }

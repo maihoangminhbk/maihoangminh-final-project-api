@@ -2,13 +2,20 @@ import Joi from 'joi'
 import { getDB } from '*/config/mongodb'
 import { ObjectId } from 'mongodb'
 import { TaskModel } from './task.model'
+
+import { ROWS_NUMBER } from '../ultilities/constants'
+
 // Define card collection
 const notificationCollectionName = 'notifications'
 const notificationCollectionSchema = Joi.object({
+  workplaceId: Joi.string().required(),
+  boardId: Joi.string().required(),
+  boardTitle: Joi.string().required().min(3).max(100).trim(),
+  notificationType: Joi.string().required().valid('board', 'workplace', 'personal', 'deadline', 'late'),
   userCreateId: Joi.string().required(),
   userCreateName: Joi.string().required().min(3).max(100).trim(),
   userCreateAvatar: Joi.string().default(null),
-  action: Joi.string().required().valid('created', 'updated', 'removed', 'added'),
+  action: Joi.string().required().valid('created', 'updated', 'removed', 'added', 'had'),
   userTargetId: Joi.string().default(null),
   userTargetName: Joi.string().min(3).max(100).trim().default(null),
   objectTargetId: Joi.string().required(),
@@ -29,6 +36,8 @@ const createNew = async (data) => {
 
     const insertValue = {
       ...validatedValue,
+      workplaceId: ObjectId(validatedValue.workplaceId),
+      boardId: ObjectId(validatedValue.boardId),
       userCreateId: ObjectId(validatedValue.userCreateId),
       objectTargetId: ObjectId(validatedValue.objectTargetId)
     }
@@ -41,6 +50,7 @@ const createNew = async (data) => {
 
     return result
   } catch (error) {
+    console.log(error)
     throw new Error(error)
   }
 }
@@ -50,6 +60,8 @@ const update = async (id, data) => {
 
     const insertValue = {
       ...data,
+      workplaceId: ObjectId(data.workplaceId),
+      boardId: ObjectId(data.boardId),
       userCreateId: ObjectId(data.userCreateId),
       userTargetId: ObjectId(data.userTargetId),
       objectTargetId: ObjectId(data.objectTargetId)
@@ -72,116 +84,62 @@ const update = async (id, data) => {
   }
 }
 
-// const getCard = async (cardId) => {
-//   try {
-
-//     const result = await getDB().collection(cardCollectionName).aggregate([
-//       { $match: {
-//         _id: ObjectId(cardId),
-//         _destroy: false
-//       } },
-//       { $lookup: {
-//         from: TaskModel.taskCollectionName,
-//         localField: '_id',
-//         foreignField: 'cardId',
-//         as: 'tasks' } }
-//     ]).toArray()
-
-//     return result[0] || {}
-
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
-
-// const getOneById = async (id) => {
-//   try {
-
-//     const result = await getDB().collection(cardCollectionName).findOne({ _id: id })
-
-//     return result
-
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
-
-// /**
-//  *
-//  * @param { Array card id } ids
-//  */
-// const deleteMany = async (ids) => {
-//   try {
-
-//     const transformIds = ids.map(i => ObjectId(i))
-//     const result = await getDB().collection(cardCollectionName).updateMany(
-//       { _id: { $in: transformIds } },
-//       { $set: { _destroy: true } }
-//     )
-//     return result
-
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
-
-// const getBoardId = async (cardId) => {
-//   try {
-//     let result = await getDB().collection(cardCollectionName).findOne({ _id: ObjectId(cardId) })
-
-//     if (result) {
-//       result = result.boardId.toString()
-//     }
-//     return result
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
-
-// const checkUserExist = async (cardId, userId) => {
-//   try {
-//     const result = await getDB().collection(cardCollectionName).findOne({
-//       _id: ObjectId(cardId),
-//       users: { $elemMatch: { userId: ObjectId(userId) } }
-//     })
+const getPersonalNotifications = async (workplaceId, userId, page) => {
+  try {
+    // const PAGE_SIZE = ROWS_NUMBER.NOTIFICATION_LIST_DROP
+    const PAGE_SIZE = 4
+    const skip = (page - 1) * PAGE_SIZE
 
 
-//     return result
+    const result = await getDB().collection(notificationCollectionName).aggregate([
+      { $match: {
+        workplaceId: ObjectId(workplaceId),
+        userTargetId: ObjectId(userId),
+        _destroy: false
+      } },
+      { $skip: skip },
+      { $limit: PAGE_SIZE }
+    ]).toArray()
+    return result
 
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
-// const addUser = async (cardId, data) => {
-//   try {
+const getFollowingNotifications = async (workplaceId, dataSearch, page) => {
+  try {
+    // const PAGE_SIZE = ROWS_NUMBER.NOTIFICATION_LIST_DROP // Similar to 'limit'
+    const PAGE_SIZE = 4
+    const skip = (page - 1) * PAGE_SIZE
 
-//     // const validateValue = await validateSchema(data)
-//     const validateValue = data
+    console.log('ownership.cardOrder', dataSearch.cards)
 
-//     const insertData = { ...validateValue }
-//     insertData.userId = ObjectId(insertData.userId)
 
-//     const result = await getDB().collection(cardCollectionName).findOneAndUpdate(
-//       { _id: ObjectId(cardId) },
-//       { $push: { users: insertData } },
-//       { returnOriginal: false }
-//     )
+    const result = await getDB().collection(notificationCollectionName).aggregate([
+      { $match: {
+        workplaceId: ObjectId(workplaceId),
+        notificationType: 'board',
+        $or: [
+          { objectTargetId : { $in : dataSearch.cards } },
+          { objectTargetId : { $in : dataSearch.tasks } }
+        ],
+        _destroy: false
+      } },
+      { $skip: skip },
+      { $limit: PAGE_SIZE }
+    ]).toArray()
+    return result
 
-//     return result.value
-//   } catch (error) {
-//     throw new Error(error)
-//   }
-// }
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
 export const NotificationModel = {
-  // cardCollectionName,
   createNew,
-  // getOneById,
-  // deleteMany,
-  update
-  // getCard,
-  // getBoardId,
-  // checkUserExist,
-  // addUser
+  update,
+  getPersonalNotifications,
+  getFollowingNotifications,
+  notificationCollectionName
 }

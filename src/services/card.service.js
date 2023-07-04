@@ -40,12 +40,26 @@ const createNew = async (data) => {
     const result = await CardModel.createNew(data)
     const newCardId = result.insertedId
 
-    const newCard = await CardModel.getOneById(newCardId)
+    const newCard = await CardModel.getOneById(newCardId.toString())
     // Push card id to card order in column collection
     // const columnId = newCard.columnId.toString()
     await ColumnModel.pushCardOrder(columnId, newCardId.toString())
 
     await OwnershipService.pushCardOrder(data.userId, newCard._id.toString())
+
+    const notificationData = {
+      workplaceId: newCard.workplaceId.toString(),
+      boardId: newCard.boardId.toString(),
+      boardTitle: board.title,
+      notificationType: 'board',
+      userCreateId: data.userId,
+      action: 'created',
+      userTargetId: null,
+      objectTargetType: 'card',
+      objectTargetId: newCard._id.toString()
+    }
+
+    await NotificationService.createNew(notificationData)
 
     return newCard
   } catch (error) {
@@ -53,7 +67,7 @@ const createNew = async (data) => {
   }
 }
 
-const update = async (id, data) => {
+const update = async (id, userId, data) => {
   try {
     const updateData = {
       ...data,
@@ -64,6 +78,26 @@ const update = async (id, data) => {
     if (updateData.users) delete updateData.users
 
     const updatedCard = await CardModel.update(id, updateData)
+
+    const board = await BoardModel.getOneById(updatedCard.boardId.toString())
+
+    if (!board) {
+      throw new BadRequest400Error('Can not find this board')
+    }
+
+    const notificationData = {
+      workplaceId: updatedCard.workplaceId.toString(),
+      boardId: updatedCard.boardId.toString(),
+      boardTitle: board.title,
+      notificationType: 'personal',
+      userCreateId: userId,
+      action: 'updated',
+      userTargetId: null,
+      objectTargetType: 'card',
+      objectTargetId: updatedCard._id.toString()
+    }
+
+    await NotificationService.createNew(notificationData)
 
     return updatedCard
   } catch (error) {
@@ -221,7 +255,7 @@ const getBoardId = async (cardId) => {
 }
 
 const addUser = async (req) => {
-  const { id } = req.params
+  const { id, userId } = req.params
   const { email } = req.body
 
   const card = await getCard(id)
@@ -234,6 +268,12 @@ const addUser = async (req) => {
 
   if (!userAdded) {
     throw new BadRequest400Error('User with email not exist')
+  }
+
+  const board = await BoardModel.getOneById(card.boardId.toString())
+
+  if (!board) {
+    throw new BadRequest400Error('Can not find this board')
   }
 
   const checkBoardUser = await OwnershipService.checkBoardUser(card.boardId.toString(), userAdded._id.toString())
@@ -249,6 +289,20 @@ const addUser = async (req) => {
   }
 
   const result = await CardModel.addUser(id, insertData)
+
+  const notificationData = {
+    workplaceId: card.workplaceId.toString(),
+    boardId: card.boardId.toString(),
+    boardTitle: board.title,
+    notificationType: 'personal',
+    userCreateId: userId,
+    action: 'added',
+    userTargetId: userAdded._id.toString(),
+    objectTargetType: 'card',
+    objectTargetId: card._id.toString()
+  }
+
+  await NotificationService.createNew(notificationData)
 
   return result
 }
@@ -386,6 +440,18 @@ const getCardsStatusFullStatistic = async (workplaceId) => {
   return result
 }
 
+const checkCardDeadline = async (beforeDay) => {
+  const result = await CardModel.checkCardDeadline(beforeDay)
+
+  return result
+}
+
+const checkCardLate = async (beforeDay) => {
+  const result = await CardModel.checkCardLate(beforeDay)
+
+  return result
+}
+
 export const CardService = {
   createNew,
   update,
@@ -401,5 +467,7 @@ export const CardService = {
   getCardCount,
   getCardsStatusStatistic,
   getCardsStatusFullStatistic,
-  getCardCountFromBoard
+  getCardCountFromBoard,
+  checkCardDeadline,
+  checkCardLate
 }

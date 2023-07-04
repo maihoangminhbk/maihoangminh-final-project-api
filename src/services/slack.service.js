@@ -15,8 +15,6 @@ import { env } from '*/config/environment'
 import jwt from 'jsonwebtoken'
 import { WorkplaceService } from './workplace.service'
 
-let count = 1
-
 const auth = async (req) => {
   try {
     const { workplaceId } = req.body
@@ -171,7 +169,27 @@ const createConnection = async (data) => {
 
     const slackChannels = await getSlackChannels(workspace.token)
 
-    if (!slackChannels.includes(slackChannel)) {
+    let channelId = null
+
+    const channelList = slackChannels.map(channel => {
+      if (channel.name && channel.name === slackChannel) {
+        if (!channel.is_member) {
+          channelId = channel.id
+        }
+      }
+
+      if (channel.name) {
+        return channel.name
+      }
+    })
+
+    if (channelId) {
+      await joinChannel(channelId, workspace.token)
+    }
+
+    console.log('channel list', channelList)
+
+    if (!channelList.includes(slackChannel)) {
       throw new BadRequest400Error('Can not found slack channel')
     }
 
@@ -183,6 +201,9 @@ const createConnection = async (data) => {
       throw new Conflict409Error('Exist connection')
     }
 
+    console.log('slackChannels', slackChannels)
+
+
     const slackConnectionData = {
       ...data,
       boardTitle: board.title
@@ -190,7 +211,7 @@ const createConnection = async (data) => {
 
     const connection = await SlackConnectionModel.createNew(slackConnectionData)
 
-    console.log('connections', connection)
+    // console.log('connections', connection)
 
     // Get connections
 
@@ -215,7 +236,35 @@ const getChannels = async (data) => {
 
     const slackChannels = await getSlackChannels(workspace.token)
 
-    return slackChannels
+    const channelList = slackChannels.map(channel => {
+      if (channel.name) {
+        return channel.name
+      }
+    })
+
+    console.log('channel list', channelList)
+
+    return channelList
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const getWorkspaceToken = async (workplaceId) => {
+  try {
+    const workplace = await WorkplaceService.getWorkplace(workplaceId)
+    if (!workplace) {
+      throw new BadRequest400Error('Workplace not exist')
+    }
+
+    const result = await SlackWorkspaceModel.getWorkspaceByWorkplaceId(workplaceId)
+
+    if (!result) {
+      throw new BadRequest400Error('Workplace has not any connect with slack workspace')
+    }
+
+    return result.token
 
   } catch (error) {
     throw new Error(error)
@@ -238,15 +287,85 @@ const getSlackChannels = async (token) => {
       throw new Error('Cannot get channels in workspace')
     }
 
-    const channelList = response.channels.map(channel => {
-      if (channel.name) {
-        return channel.name
-      }
+    // const channelList = response.channels.map(channel => {
+    //   if (channel.name) {
+    //     return channel.name
+    //   }
+    // })
+
+    // console.log('channel list', channelList)
+
+    return response.channels
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const joinChannel = async (channelId, token) => {
+  try {
+    const client = new WebClient()
+
+    console.log('token', token)
+
+    const response = await client.apiCall('conversations.join', {
+      token: token,
+      channel: channelId
     })
 
-    console.log('channel list', channelList)
+    console.log('get slack channel - respond', response)
 
-    return channelList
+    if (!response.ok) {
+      throw new Error('Cannot join channel, contact slack admin')
+    }
+
+    return response.ok
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const postMessage = async (channel, token, notificationData) => {
+  try {
+    const { notificationType, userCreateName, action, objectTargetName, objectTargetType, boardTitle, boardId, workplaceId } = notificationData
+    const client = new WebClient()
+
+    let text = ''
+
+    switch (notificationType) {
+    case 'board':
+      if (objectTargetType !== 'board') {
+        text = `Board: *${boardTitle}* \n`
+      }
+      text = text + `*${userCreateName}* ${action} ${objectTargetType} *${objectTargetName}*`
+
+      text = text + `\n<https://localhost:3000/workplaces/${workplaceId}/boards/${boardId}|Open App>`
+      break
+
+    default:
+      break
+    }
+
+    const response = await client.apiCall('chat.postMessage', {
+      token: token,
+      channel: channel,
+      blocks: [
+        {
+          'type': 'section',
+          'text': {
+            'type': 'mrkdwn',
+            'text': text
+          }
+        }
+      ]
+    })
+
+    if (!response.ok) {
+      throw new Error('Cannot post message')
+    }
+
+    return response.ok
 
   } catch (error) {
     throw new Error(error)
@@ -257,9 +376,11 @@ export const SlackService = {
   auth,
   callback,
   addToken,
+  getWorkspaceToken,
   getWorkspace,
   getConnections,
   getSlackChannels,
   createConnection,
-  getChannels
+  getChannels,
+  postMessage
 }

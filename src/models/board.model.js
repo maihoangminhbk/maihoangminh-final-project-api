@@ -368,5 +368,6 @@ export const BoardModel = {
   deleteUser,
   updateUser,
   getWorkplaceUserCountStatistic,
-  getUserCount
+  getUserCount,
+  boardCollectionName
 }

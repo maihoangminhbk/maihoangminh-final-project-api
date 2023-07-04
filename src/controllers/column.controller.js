@@ -4,7 +4,8 @@ import { HttpStatusCode } from '*/ultilities/constants'
 
 const createNew = async (req, res) => {
   try {
-    const result = await ColumnService.createNew(req.body)
+    const { userId } = req.params
+    const result = await ColumnService.createNew(userId, req.body)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({

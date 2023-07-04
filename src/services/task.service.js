@@ -1,11 +1,12 @@
 import { TaskModel } from '*/models/task.model'
 import { CardModel } from '*/models/card.model'
 import { UserModel } from '*/models/user.model'
+import { BoardModel } from '*/models/board.model'
 
+import { NotificationService } from '*/services/notification.service'
 import { OwnershipService } from '*/services/ownership.service'
 
 import { NotPermission403Error, BadRequest400Error, Conflict409Error } from '../ultilities/errorsHandle/APIErrors'
-import { CardService } from './card.service'
 
 const createNew = async (data) => {
   try {
@@ -19,11 +20,31 @@ const createNew = async (data) => {
     data.workplaceId = card.workplaceId.toString()
     data.boardId = card.boardId.toString()
 
+    const board = await BoardModel.getOneById(data.boardId)
+
+    if (!board) {
+      throw new BadRequest400Error('Can not find this board')
+    }
+
     const result = await TaskModel.createNew(data)
 
     const newTaskId = result.insertedId
 
     await OwnershipService.pushTaskOrder(userId, newTaskId.toString())
+
+    const notificationData = {
+      workplaceId: card.workplaceId.toString(),
+      boardId: card.boardId.toString(),
+      boardTitle: board.title,
+      notificationType: 'board',
+      userCreateId: data.userId,
+      action: 'created',
+      userTargetId: null,
+      objectTargetType: 'task',
+      objectTargetId: newTaskId.toString()
+    }
+
+    await NotificationService.createNew(notificationData)
 
     const newTask = await TaskModel.getOneById(newTaskId)
     // Push task id to task order in card collection
@@ -222,6 +243,12 @@ const addUser = async (req) => {
     throw new Conflict409Error('User permission exist in task')
   }
 
+  const board = await BoardModel.getOneById(task.boardId.toString())
+
+  if (!board) {
+    throw new BadRequest400Error('Can not find this board')
+  }
+
 
   // await CardService.addUser(userAdded._id.toString(), task.cardId.toString())
 
@@ -232,6 +259,20 @@ const addUser = async (req) => {
   }
 
   const result = await TaskModel.addUser(id, insertData)
+
+  const notificationData = {
+    workplaceId: task.workplaceId.toString(),
+    boardId: task.boardId.toString(),
+    boardTitle: board.title,
+    notificationType: 'personal',
+    userCreateId: userId,
+    action: 'created',
+    userTargetId: userAdded._id.toString(),
+    objectTargetType: 'task',
+    objectTargetId: task._id.toString()
+  }
+
+  await NotificationService.createNew(notificationData)
 
   return result
 }

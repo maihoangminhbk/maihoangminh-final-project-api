@@ -23,6 +23,10 @@ const createNew = async (data) => {
     await OwnershipService.pushBoardOrder(data.userId, newBoardId, 0, true)
 
     const notificationData = {
+      workplaceId: newBoard.workplaceId.toString(),
+      boardId: newBoard._id.toString(),
+      boardTitle: newBoard.title,
+      notificationType: 'workplace',
       userCreateId: data.userId,
       action: 'created',
       userTargetId: null,
@@ -144,6 +148,20 @@ const addUser = async (req) => {
   }
 
   const result = await BoardModel.addUser(id, insertData)
+
+  const notificationData = {
+    workplaceId: board.workplaceId.toString(),
+    boardId: board._id.toString(),
+    boardTitle: board.title,
+    notificationType: 'personal',
+    userCreateId: userId,
+    action: 'added',
+    userTargetId: userAdded._id.toString(),
+    objectTargetType: 'board',
+    objectTargetId: board._id.toString()
+  }
+
+  await NotificationService.createNew(notificationData)
 
   return result
 }
