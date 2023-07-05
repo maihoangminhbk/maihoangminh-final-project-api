@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 import { WorkplaceService } from '*/services/workplace.service'
+import { OwnershipService } from '*/services/ownership.service'
 
 import { makeId } from '*/ultilities/randomId'
 
@@ -156,7 +157,15 @@ const activate = async (data) => {
       title: 'My workplace'
     }
 
-    await WorkplaceService.createNew(workplaceData)
+    const newWorkplace = await WorkplaceService.createNew(workplaceData)
+
+    // Create ownership
+    const ownershipData = {
+      userId: userId,
+      workplaceId: newWorkplace._id.toString()
+    }
+
+    const createdOwnership = await OwnershipService.createNew(ownershipData)
 
     return { 'token' : return_token }
   }

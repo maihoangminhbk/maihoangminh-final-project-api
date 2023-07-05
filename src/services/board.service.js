@@ -16,7 +16,15 @@ const createNew = async (data) => {
 
     const newBoardId = result.insertedId
 
-    const newBoard = await BoardModel.getOneById(newBoardId)
+    // Add onwer to board
+    const insertData = {
+      userId: data.userId,
+      role: 0
+    }
+
+    await BoardModel.addUser(newBoardId.toString(), insertData)
+
+    const newBoard = await BoardModel.getOneById(newBoardId.toString())
 
     newBoard.columns = []
 
@@ -176,22 +184,28 @@ const deleteUser = async (req) => {
     throw new BadRequest400Error('Can not find this board')
   }
 
-  const userAdded = await UserModel.getOneByEmail(email)
+  const userDelete = await UserModel.getOneByEmail(email)
 
-  if (!userAdded) {
+  if (!userDelete) {
     throw new BadRequest400Error('User with email not exist')
   }
 
-  const isUserExistInBoard = await BoardModel.checkUserExist(id, userAdded._id.toString())
+  const isUserExistInBoard = await BoardModel.checkUserExist(id, userDelete._id.toString())
 
 
   if (!isUserExistInBoard) {
     throw new BadRequest400Error('User not exist in board')
   }
 
-  await OwnershipService.popBoardOrder(userAdded._id.toString(), id)
+  const isUserOwner = await BoardModel.checkUserOwner(id, userDelete._id.toString())
 
-  const result = await BoardModel.deleteUser(id, userAdded._id.toString())
+  if (isUserOwner) {
+    throw new NotPermission403Error('Cannot delete owner')
+  }
+
+  await OwnershipService.popBoardOrder(userDelete._id.toString(), id)
+
+  const result = await BoardModel.deleteUser(id, userDelete._id.toString())
 
   return result
 }

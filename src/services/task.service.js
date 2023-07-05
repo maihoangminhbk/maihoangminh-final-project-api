@@ -30,6 +30,13 @@ const createNew = async (data) => {
 
     const newTaskId = result.insertedId
 
+    const insertData = {
+      userId: userId
+      // role: role
+    }
+
+    await TaskModel.addUser(newTaskId.toString(), insertData)
+
     await OwnershipService.pushTaskOrder(userId, newTaskId.toString())
 
     const notificationData = {
