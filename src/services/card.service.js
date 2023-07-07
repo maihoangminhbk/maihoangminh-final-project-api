@@ -120,6 +120,10 @@ const getCard = async (cardId) => {
       throw new Error('Card not found!')
     }
 
+    const url = await getImageUrl(card.cover)
+
+    card.imageUrl = url
+
 
     return card
   } catch (error) {
@@ -175,12 +179,11 @@ const uploadImage = async (req, res) => {
         }
 
 
-        await update(id, updateData)
+        await update(id, req.params.userId, updateData)
 
         const returnData = {
           url: url
         }
-
 
         res.status(HttpStatusCode.OK).json(returnData)
         return returnData
