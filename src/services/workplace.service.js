@@ -11,15 +11,17 @@ const createNew = async (data) => {
 
     const newWorkplaceId = result.insertedId
 
-
-    // Create ownership
-    const ownershipData = {
+    // Add onwer to workplace
+    const insertData = {
       userId: data.userId,
-      workplaceId: newWorkplaceId.toString()
+      role: 0
     }
 
-    const createdOwnership = await OwnershipService.createNew(ownershipData)
+    await WorkplaceModel.addUser(newWorkplaceId.toString(), insertData)
 
+
+    // push workplace to ownership
+    await OwnershipService.pushWorkplaceOrder(data.userId, newWorkplaceId.toString(), 0, true)
 
     // Create Board
     const boardData = {

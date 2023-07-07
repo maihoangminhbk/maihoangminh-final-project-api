@@ -146,6 +146,20 @@ const checkUserExist = async (boardId, userId) => {
   }
 }
 
+const checkUserOwner = async (boardId, userId) => {
+  try {
+    const result = await getDB().collection(boardCollectionName).findOne({
+      _id: ObjectId(boardId),
+      userId: ObjectId(userId)
+    })
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 
 const addUser = async (boardId, data) => {
   try {
@@ -361,6 +375,7 @@ export const BoardModel = {
   getOneById,
   update,
   checkUserExist,
+  checkUserOwner,
   addUser,
   getUsers,
   getOneByOwnerAndId,

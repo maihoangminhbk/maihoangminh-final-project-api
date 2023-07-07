@@ -40,6 +40,13 @@ const createNew = async (data) => {
     const result = await CardModel.createNew(data)
     const newCardId = result.insertedId
 
+    // Add owner to card
+    const insertData = {
+      userId: data.userId
+    }
+
+    await CardModel.addUser(newCardId.toString(), insertData)
+
     const newCard = await CardModel.getOneById(newCardId.toString())
     // Push card id to card order in column collection
     // const columnId = newCard.columnId.toString()

@@ -59,20 +59,24 @@ const createNew = async (data) => {
     }
 
     // Post notification to slack
-    if (workplaceId && boardId && notificationType === 'board') {
-      const token = await SlackService.getWorkspaceToken(workplaceId)
+    try {
+      if (workplaceId && boardId && notificationType === 'board') {
+        const token = await SlackService.getWorkspaceToken(workplaceId)
 
-      const getConnectionsData = {
-        workplaceId: workplaceId
-      }
+        const getConnectionsData = {
+          workplaceId: workplaceId
+        }
 
-      const connections = await SlackService.getConnections(getConnectionsData)
+        const connections = await SlackService.getConnections(getConnectionsData)
 
-      for (const connection of connections) {
-        if (boardId === connection.boardId.toString()) {
-          await SlackService.postMessage(connection.slackChannel, token, notificationData)
+        for (const connection of connections) {
+          if (boardId === connection.boardId.toString()) {
+            await SlackService.postMessage(connection.slackChannel, token, notificationData)
+          }
         }
       }
+    } catch (error) {
+      console.log(error)
     }
 
 
