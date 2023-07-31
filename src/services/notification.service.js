@@ -58,30 +58,31 @@ const createNew = async (data) => {
       delete notificationData.userTargetId
     }
 
+    const result = await NotificationModel.createNew(notificationData)
+    // const result = 'ok'
+
     // Post notification to slack
     try {
       if (workplaceId && boardId && notificationType === 'board') {
         const token = await SlackService.getWorkspaceToken(workplaceId)
 
-        const getConnectionsData = {
-          workplaceId: workplaceId
-        }
+        if (token) {
+          const getConnectionsData = {
+            workplaceId: workplaceId
+          }
 
-        const connections = await SlackService.getConnections(getConnectionsData)
+          const connections = await SlackService.getConnections(getConnectionsData)
 
-        for (const connection of connections) {
-          if (boardId === connection.boardId.toString()) {
-            await SlackService.postMessage(connection.slackChannel, token, notificationData)
+          for (const connection of connections) {
+            if (boardId === connection.boardId.toString()) {
+              await SlackService.postMessage(connection.slackChannel, token, notificationData)
+            }
           }
         }
       }
     } catch (error) {
       console.log(error)
     }
-
-
-    const result = await NotificationModel.createNew(notificationData)
-    // const result = 'ok'
 
     return result
   } catch (error) {

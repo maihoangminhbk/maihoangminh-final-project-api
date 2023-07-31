@@ -12,11 +12,11 @@ const workplaceCollectionSchema = Joi.object({
     // Admin role: 1; User role: 0
     role: Joi.number().integer().min(0).max(1).default(0)
   })).default([]),
-  title: Joi.string().required().min(3).max(20).trim(),
+  title: Joi.string().required().min(3).max(100).trim(),
   cover: Joi.string().default(null),
   boardOrder: Joi.array().items(Joi.object({
     boardId: Joi.string().required().min(3).trim(),
-    title: Joi.string().required().min(3).max(20).trim()
+    title: Joi.string().required().min(3).max(100).trim()
   }
   )).default([]),
   createdAt: Joi.date().timestamp().default(Date.now()),

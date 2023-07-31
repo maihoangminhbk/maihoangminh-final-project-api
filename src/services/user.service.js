@@ -37,6 +37,7 @@ const login = async (data) => {
 
   const token = jwt.sign( { email: email, id: oldUser._id }, secret, { expiresIn: '24h' } )
 
+  if (oldUser.password) delete oldUser.password
   return { ...oldUser, 'token' : token }
 }
 
@@ -79,11 +80,14 @@ const loginWithGoogle = async (data) => {
 
     const token = jwt.sign( { email: email, id: userId }, secret, { expiresIn: '24h' } )
 
+
+    if (newUser.password) delete newUser.password
     return { ...newUser, 'token' : token }
   }
 
   const token = jwt.sign( { email: email, id: oldUser._id }, secret, { expiresIn: '24h' } )
 
+  if (oldUser.password) delete oldUser.password
   return { ...oldUser, 'token' : token }
 }
 
@@ -115,7 +119,7 @@ const signup = async (data) => {
 }
 
 const activate = async (data) => {
-  const token = data.token
+  const { token, role, organizationName } = data
   let decodedData
 
   if (token) {
@@ -135,7 +139,9 @@ const activate = async (data) => {
       name: name,
       email: email,
       password: hashPassword,
-      active: true
+      active: true,
+      role: role,
+      organizationName: organizationName
     }
 
     const oldUser = await UserModel.getOneByEmail(email)
@@ -152,20 +158,20 @@ const activate = async (data) => {
 
     const userId = newUser._id.toString()
 
+    // Create ownership
+    const ownershipData = {
+      userId: userId
+    }
+
+    const createdOwnership = await OwnershipService.createNew(ownershipData)
+
+    // Create workplace
     const workplaceData = {
       userId: userId,
       title: 'My workplace'
     }
 
     const newWorkplace = await WorkplaceService.createNew(workplaceData)
-
-    // Create ownership
-    const ownershipData = {
-      userId: userId,
-      workplaceId: newWorkplace._id.toString()
-    }
-
-    const createdOwnership = await OwnershipService.createNew(ownershipData)
 
     return { 'token' : return_token }
   }

@@ -11,6 +11,8 @@ const userCollectionSchema = Joi.object({
   email: Joi.string().required().min(3).trim(),
   password: Joi.string().required().min(3).trim(),
   active: Joi.boolean().default(false),
+  role: Joi.number().integer().min(0).max(1).default(1), // 0: Admin; 1: User
+  organizationName: Joi.string().min(3).max(100).trim().default(''),
   cover: Joi.string().default(null),
   active_code: Joi.string().min(3).trim().default(null),
   reset_code: Joi.string().min(3).trim().default(null),

@@ -54,7 +54,29 @@ const getWorkplace = async (workplaceId) => {
       throw new Error('Workplace not found!')
     }
 
+    return workplace
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
+const getWorkplaceFilter = async (workplace, userId) => {
+  try {
+    if (!workplace) {
+      throw new Error('Workplace not found!')
+    }
+
+    const filterWorkplace = { ...workplace }
+    const boardOrder = filterWorkplace.boardOrder
+
+    let boardFilter = []
+    for (const board of boardOrder) {
+      const checkUser = await OwnershipService.checkBoardUser(board.boardId, userId)
+      if (checkUser) {
+        boardFilter.push(board)
+      }
+    }
+    workplace.boardOrder = boardFilter
     return workplace
   } catch (error) {
     throw new Error(error)
@@ -104,6 +126,9 @@ const addUser = async (req) => {
   if (!userAdded) {
     throw new BadRequest400Error('User with email not exist')
   }
+
+  // console.log('id', id)
+  // console.log('userAdded._id.toString()', userAdded._id.toString())
 
   const isUserExist = await WorkplaceModel.checkUserExist(id, userAdded._id.toString())
 
@@ -192,6 +217,7 @@ const getUserCount = async (workplaceId) => {
 export const WorkplaceService = {
   createNew,
   getWorkplace,
+  getWorkplaceFilter,
   update,
   pushBoardOrder,
   addUser,

@@ -310,6 +310,22 @@ const checkBoardUser = async (boardId, userId) => {
   }
 }
 
+const checkCardUser = async (cardId, userId) => {
+  try {
+    const result = await getDB().collection(ownershipCollectionName).findOne(
+      {
+        userId: ObjectId(userId),
+        cardOrder: { $elemMatch: {
+          cardId: ObjectId(cardId)
+        } }
+      }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 /**
  *
  * @param {string} userId
@@ -368,6 +384,7 @@ export const OwnershipModel = {
   checkWorkplaceAdmin,
   checkBoardAdmin,
   checkBoardUser,
+  checkCardUser,
   pushCardOrder,
   popBoardOrder,
   updateBoardOrder,

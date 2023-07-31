@@ -25,7 +25,6 @@ const createNew = async (userId, data) => {
     }
 
     await BoardModel.pushColumnOrder(boardId, newColumnId.toString())
-    console.log('check 1')
 
     const notificationData = {
       workplaceId: board.workplaceId.toString(),
@@ -38,10 +37,8 @@ const createNew = async (userId, data) => {
       objectTargetType: 'column',
       objectTargetId: newColumn._id.toString()
     }
-    console.log('check 2')
 
     await NotificationService.createNew(notificationData)
-    console.log('check 3')
 
     return newColumn
   } catch (error) {

@@ -118,6 +118,21 @@ const getOneById = async (id) => {
   }
 }
 
+const getCardId = async (id) => {
+  try {
+
+    let result = await getDB().collection(taskCollectionName).findOne({ _id: ObjectId(id) })
+    if (result) {
+      result = result.cardId.toString()
+    }
+
+    return result
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 /**
  *
  * @param { Array task id } ids
@@ -481,6 +496,7 @@ export const TaskModel = {
   deleteMany,
   update,
   getTask,
+  getCardId,
   checkUserExist,
   addUser,
   searchUsers,

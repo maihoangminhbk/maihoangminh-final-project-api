@@ -114,7 +114,8 @@ const getWorkspace = async (data) => {
     const result = await SlackWorkspaceModel.getWorkspaceByWorkplaceId(workplaceId)
 
     if (!result) {
-      throw new BadRequest400Error('Workplace has not any connect with slack workspace')
+      // throw new BadRequest400Error('Workplace has not any connect with slack workspace')
+      return null
     }
 
     if (result.token) delete result.token
@@ -261,7 +262,7 @@ const getWorkspaceToken = async (workplaceId) => {
     const result = await SlackWorkspaceModel.getWorkspaceByWorkplaceId(workplaceId)
 
     if (!result) {
-      throw new BadRequest400Error('Workplace has not any connect with slack workspace')
+      return null
     }
 
     return result.token

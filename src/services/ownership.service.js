@@ -11,13 +11,11 @@ const createNew = async (data) => {
 
       // await OwnershipModel.getOneById(newOwnershipId)
 
-      const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId, 0, true)
-      return updatedOwnership
+      // const updatedOwnership = await pushWorkplaceOrder(data.userId, data.workplaceId, 0, true)
+      return result
     }
 
-    if (ownership && ownership.workplaceOrder.includes(data.workplaceId)) {
-      throw new Error('Workplace exist')
-    } else {
+    if (ownership) {
       throw new Error('Ownership exist')
     }
 
@@ -169,6 +167,17 @@ const checkBoardUser = async (boardId, userId) => {
   }
 }
 
+const checkCardUser = async (cardId, userId) => {
+  try {
+
+    const result = await OwnershipModel.checkCardUser(cardId, userId)
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const pushCardOrder = async (userId, cardId) => {
   try {
 
@@ -201,6 +210,7 @@ export const OwnershipService = {
   checkWorkplaceAdmin,
   checkBoardAdmin,
   checkBoardUser,
+  checkCardUser,
   pushCardOrder,
   popBoardOrder,
   updateBoardOrder,

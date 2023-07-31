@@ -12,7 +12,7 @@ router.route('/')
   .post(auth, authorization(ROLE.WORKPLACE_ADMIN), BoardValidation.createNew, BoardController.createNew)
 
 router.route('/:id')
-  .get(auth, BoardController.getFullBoard)
+  .get(auth, authorization(ROLE.BOARD_USER), BoardController.getFullBoard)
   .put(auth, authorization(ROLE.BOARD_ADMIN), BoardValidation.update, BoardController.update)
 
 router.route('/:id/add-user')

@@ -5,7 +5,7 @@ const createNew = async (req, res, next) => {
 
   console.log('board validation - test')
   const condition = Joi.object({
-    title: Joi.string().required().min(3).max(20).trim(),
+    title: Joi.string().required().min(3).max(100).trim(),
     workplaceId: Joi.string().required().min(3).trim()
   })
 
@@ -21,7 +21,7 @@ const createNew = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const condition = Joi.object({
-    title: Joi.string().min(3).max(20).trim(),
+    title: Joi.string().min(3).max(100).trim(),
     columnOrder: Joi.array().items(Joi.string())
   })
 

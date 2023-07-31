@@ -102,6 +102,15 @@ const getTask = async (taskId) => {
   }
 }
 
+const getCardId = async (taskId) => {
+  try {
+    const cardId = await TaskModel.getCardId(taskId)
+    return cardId
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 // const uploadImage = async (req, res) => {
 //   try {
 
@@ -402,6 +411,7 @@ export const TaskService = {
   update,
   // uploadImage,
   // getImageUrl
+  getCardId,
   addUser,
   searchUsers,
   searchUsersToAdd,

@@ -17,8 +17,9 @@ const createNew = async (req, res) => {
 
 const getWorkplace = async (req, res) => {
   try {
-    const { id } = req.params
-    const result = await WorkplaceService.getWorkplace(id)
+    const { userId, id } = req.params
+    const workplaceResult = await WorkplaceService.getWorkplace(id)
+    const result = await WorkplaceService.getWorkplaceFilter(workplaceResult, userId)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({

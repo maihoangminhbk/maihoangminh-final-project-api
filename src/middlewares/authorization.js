@@ -1,6 +1,7 @@
 import { OwnershipService } from '*/services/ownership.service'
 import { ColumnService } from '*/services/column.service'
 import { CardService } from '*/services/card.service'
+import { TaskService } from '*/services/task.service'
 
 import { Unauthorized401Error } from '*/ultilities/errorsHandle/APIErrors'
 import { ROLE } from '*/ultilities/constants'
@@ -83,6 +84,30 @@ const authorization = function(role) {
         break
       }
 
+      case ROLE.CARD_USER: {
+        const { id, userId } = req.params
+
+        let cardId = id
+
+        if (req.baseUrl.toString().includes('tasks')) {
+          cardId = await TaskService.getCardId(id)
+          console.log('check')
+
+          if (!cardId) {
+            console.log('check1')
+            cardId = req.body.cardId
+          }
+        }
+
+        console.log('cardId', cardId)
+
+        const ownership = await OwnershipService.checkCardUser(cardId, userId)
+
+        if (!ownership) {
+          throw new Unauthorized401Error('Only card user can perform this action')
+        }
+        break
+      }
 
       default: {
         throw new Unauthorized401Error('You don\'t have enough permission to perform this action')

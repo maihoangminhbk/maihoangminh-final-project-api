@@ -15,7 +15,7 @@ const cardCollectionSchema = Joi.object({
   workplaceId: Joi.string().required(), // Also ObjectId when create new
   boardId: Joi.string().required(), // Also ObjectId when create new
   columnId: Joi.string().required(), // Also ObjectId when create new
-  title: Joi.string().required().min(3).max(30).trim(),
+  title: Joi.string().required().min(3).max(100).trim(),
   cover: Joi.string().default(null),
   description: Joi.string().max(1000).trim().default('This is description'),
   status: Joi.number().integer().min(0).max(5).default(0), // 0: created; 1: inprocess; 2: done; 3: completed; 4: late; 5: canceled

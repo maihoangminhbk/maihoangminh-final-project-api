@@ -21,8 +21,8 @@ import { WebClient } from '@slack/web-api'
 import { checkDeadline } from './ultilities/cronDeadline'
 
 const hostname = env.APP_HOST
-const port = env.APP_PORT
-// const port = process.env.PORT || 80
+// const port = env.APP_PORT
+const port = process.env.PORT || 80
 const socketHost = env.SOCKET_HOST
 const sessionSecret = env.SESSION_SECRET
 
@@ -34,10 +34,10 @@ connectDB()
     process.exit(1)
   })
 
-const credentials = {
-  key: fs.readFileSync('./.cert/key.pem'),
-  cert: fs.readFileSync('./.cert/cert.pem')
-}
+// const credentials = {
+//   key: fs.readFileSync('./.cert/key.pem'),
+//   cert: fs.readFileSync('./.cert/cert.pem')
+// }
 
 const bootServer = () => {
   const app = express()
@@ -61,12 +61,12 @@ const bootServer = () => {
   // Use APIs v1
   app.use('/v1', apiV1)
 
-  // app.listen(port,
-  //   // hostname,
-  //   () => {
-  //   // eslint-disable-next-line no-console
-  //   // console.log(`Hello, Iam running at ${hostname}:${port}/`)
-  //   })
+  app.listen(port,
+    // hostname,
+    () => {
+    // eslint-disable-next-line no-console
+      console.log(`Hello, Iam running at ${hostname}:${port}/`)
+    })
 
   // Socket server
   io.of('/v1/board').on('connection', boardConnection)
@@ -75,7 +75,7 @@ const bootServer = () => {
   // check deadline by cron
   checkDeadline()
 
-  const httpsServer = https.createServer(credentials, app)
-  httpsServer.listen(3443, () => console.log('Your Slack-OAuth app is listening on port 3443.'))
+  // const httpsServer = https.createServer(credentials, app)
+  // httpsServer.listen(3443, () => console.log('Your Slack-OAuth app is listening on port 3443.'))
 
 }
