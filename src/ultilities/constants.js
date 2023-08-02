@@ -24,7 +24,8 @@ export const ROLE = {
   BOARD_USER: 'board_user',
   CARD_ADMIN: 'card_admin',
   CARD_OWNER: 'card_owner',
-  CARD_USER: 'card_user'
+  CARD_USER: 'card_user',
+  TASK_USER: 'task_user'
 }
 
 export const ROWS_NUMBER = {
