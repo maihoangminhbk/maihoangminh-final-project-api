@@ -32,6 +32,18 @@ const update = async (req, res) => {
   }
 }
 
+const getCardId = async (req, res) => {
+  try {
+    const { id } = req.params
+    const result = await TaskService.getCardId(id)
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER).json({
+      errors: error.message
+    })
+  }
+}
+
 // const uploadImage = async (req, res) => {
 //   try {
 //     const { id } = req.params
@@ -83,6 +95,7 @@ const deleteUser = async (req, res, next) => {
 export const TaskController = {
   createNew,
   update,
+  getCardId,
   // uploadImage
   addUser,
   searchUsers,

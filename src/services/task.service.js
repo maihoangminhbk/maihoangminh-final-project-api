@@ -282,7 +282,7 @@ const addUser = async (req) => {
     boardTitle: board.title,
     notificationType: 'personal',
     userCreateId: userId,
-    action: 'created',
+    action: 'added',
     userTargetId: userAdded._id.toString(),
     objectTargetType: 'task',
     objectTargetId: task._id.toString()

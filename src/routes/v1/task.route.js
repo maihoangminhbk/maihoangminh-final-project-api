@@ -9,25 +9,28 @@ import { ROLE } from '*/ultilities/constants'
 const router = express.Router()
 
 router.route('/')
-  .post(auth, authorization(ROLE.CARD_USER), TaskValidation.createNew, TaskController.createNew)
+  .post(auth, authorization(ROLE.BOARD_ADMIN), TaskValidation.createNew, TaskController.createNew)
 
 router.route('/:id')
-  .put(auth, authorization(ROLE.CARD_USER), TaskValidation.update, TaskController.update)
+  .put(auth, authorization(ROLE.TASK_USER), TaskValidation.update, TaskController.update)
+
+router.route('/:id/get-card-id')
+  .get(auth, authorization(ROLE.BOARD_ADMIN), TaskController.getCardId)
 
 router.route('/:id/add-user')
-  .post(auth, authorization(ROLE.CARD_USER), TaskValidation.addUser, TaskController.addUser)
+  .post(auth, authorization(ROLE.BOARD_ADMIN), TaskValidation.addUser, TaskController.addUser)
 
 router.route('/:id/delete-user')
-  .post(auth, authorization(ROLE.CARD_USER), TaskController.deleteUser)
+  .post(auth, authorization(ROLE.BOARD_ADMIN), TaskController.deleteUser)
 
 // router.route('/:id/update-user')
 //   .post(auth, authorization(ROLE.BOARD_ADMIN), CardController.updateUser)
 
 router.route('/:id/search-users')
-  .post(auth, authorization(ROLE.CARD_USER), TaskController.searchUsers)
+  .post(auth, authorization(ROLE.BOARD_ADMIN), TaskController.searchUsers)
 
 router.route('/:id/search-users-to-add')
-  .post(auth, authorization(ROLE.CARD_USER), TaskController.searchUsersToAdd)
+  .post(auth, authorization(ROLE.BOARD_ADMIN), TaskController.searchUsersToAdd)
 
 // router.route('/:id/add-user')
 //   .post(auth, TaskController.addUser)
