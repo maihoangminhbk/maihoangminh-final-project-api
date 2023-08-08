@@ -21,8 +21,8 @@ const notificationCollectionSchema = Joi.object({
   objectTargetId: Joi.string().required(),
   objectTargetType: Joi.string().required().valid('workplace', 'board', 'column', 'card', 'task'),
   objectTargetName: Joi.string().required().min(3).max(100).trim(),
-  createdAt: Joi.date().timestamp().default(Date.now()),
-  updatedAt: Joi.date().timestamp().default(Date.now()),
+  createdAt: Joi.date().timestamp().default(Date.now),
+  updatedAt: Joi.date().timestamp().default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 
@@ -97,6 +97,7 @@ const getPersonalNotifications = async (workplaceId, userId, page) => {
         userTargetId: ObjectId(userId),
         _destroy: false
       } },
+      { $sort : { createdAt : -1 } },
       { $skip: skip },
       { $limit: PAGE_SIZE }
     ]).toArray()
@@ -113,7 +114,7 @@ const getFollowingNotifications = async (workplaceId, dataSearch, page) => {
     const PAGE_SIZE = 4
     const skip = (page - 1) * PAGE_SIZE
 
-    console.log('ownership.cardOrder', dataSearch.cards)
+    console.log('ownership.taskOrder', dataSearch.tasks)
 
 
     const result = await getDB().collection(notificationCollectionName).aggregate([
@@ -126,6 +127,7 @@ const getFollowingNotifications = async (workplaceId, dataSearch, page) => {
         ],
         _destroy: false
       } },
+      { $sort : { createdAt : -1 } },
       { $skip: skip },
       { $limit: PAGE_SIZE }
     ]).toArray()

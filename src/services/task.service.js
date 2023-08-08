@@ -65,10 +65,12 @@ const createNew = async (data) => {
   }
 }
 
-const update = async (id, data) => {
+const update = async (req) => {
   try {
+    const { id, userId } = req.params
+
     const updateData = {
-      ...data,
+      ...req.body,
       updatedAt: Date.now()
     }
 
@@ -80,6 +82,43 @@ const update = async (id, data) => {
     if (updateData._destroy) {
       await OwnershipService.popTaskOrder('', updatedTask._id.toString())
     }
+
+    const board = await BoardModel.getOneById(updatedTask.boardId.toString())
+
+    if (!board) {
+      throw new BadRequest400Error('Can not find this board')
+    }
+
+    let notificationData
+
+    if (userId !== updatedTask.userId.toString()) {
+      notificationData = {
+        workplaceId: updatedTask.workplaceId.toString(),
+        boardId: updatedTask.boardId.toString(),
+        boardTitle: board.title,
+        notificationType: 'personal',
+        userCreateId: userId,
+        action: 'updated',
+        userTargetId: updatedTask.userId.toString(),
+        objectTargetType: 'task',
+        objectTargetId: updatedTask._id.toString()
+      }
+    } else {
+      notificationData = {
+        workplaceId: updatedTask.workplaceId.toString(),
+        boardId: updatedTask.boardId.toString(),
+        boardTitle: board.title,
+        notificationType: 'board',
+        userCreateId: userId,
+        action: 'updated',
+        userTargetId: null,
+        objectTargetType: 'task',
+        objectTargetId: updatedTask._id.toString()
+      }
+    }
+
+    await NotificationService.createNew(notificationData)
+
 
     return updatedTask
   } catch (error) {
@@ -275,6 +314,8 @@ const addUser = async (req) => {
   }
 
   const result = await TaskModel.addUser(id, insertData)
+
+  await OwnershipService.pushTaskOrder(userAdded._id.toString(), id)
 
   const notificationData = {
     workplaceId: task.workplaceId.toString(),

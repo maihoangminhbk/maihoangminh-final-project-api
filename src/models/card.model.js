@@ -29,8 +29,8 @@ const cardCollectionSchema = Joi.object({
     // role: Joi.number().integer().min(0).max(1).default(0)
     })
   ).default([]),
-  createdAt: Joi.date().timestamp().default(Date.now()),
-  updatedAt: Joi.date().timestamp().default(Date.now()),
+  createdAt: Joi.date().timestamp().default(Date.now),
+  updatedAt: Joi.date().timestamp().default(Date.now),
   _destroy: Joi.boolean().default(false)
 })
 

@@ -160,7 +160,7 @@ const getFollowingNotifications = async (req) => {
     const dataSearch = {}
 
     dataSearch.cards = ownership.cardOrder.map(card => card.cardId)
-    dataSearch.tasks = ownership.cardOrder.map(task => task.taskId)
+    dataSearch.tasks = ownership.taskOrder.map(task => task.taskId)
 
 
     const notification = await NotificationModel.getFollowingNotifications(id, dataSearch, page)

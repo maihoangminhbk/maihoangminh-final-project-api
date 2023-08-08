@@ -47,6 +47,14 @@ const authorization = function(role) {
           }
         }
 
+        if (req.baseUrl.toString().includes('tasks')) {
+          let cardId = await TaskService.getCardId(id)
+          if (!cardId) {
+            cardId = req.body.cardId
+          }
+          boardId = await CardService.getBoardId(cardId)
+        }
+
         const ownership = await OwnershipService.checkBoardAdmin(boardId, userId)
 
         if (!ownership) {

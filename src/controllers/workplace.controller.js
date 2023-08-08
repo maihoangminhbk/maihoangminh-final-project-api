@@ -30,8 +30,9 @@ const getWorkplace = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    const { id } = req.params
-    const result = await WorkplaceService.update(id, req.body)
+    const { userId, id } = req.params
+    const workplaceResult = await WorkplaceService.update(id, req.body)
+    const result = await WorkplaceService.getWorkplaceFilter(workplaceResult, userId)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).json({
@@ -69,9 +70,10 @@ const searchUsers = async (req, res, next) => {
 
 const addBoard = async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { userId, id } = req.params
     req.body.userId = req.params.userId
-    const result = await WorkplaceService.addBoard(id, req.body)
+    const workplaceResult = await WorkplaceService.addBoard(id, req.body)
+    const result = await WorkplaceService.getWorkplaceFilter(workplaceResult, userId)
     res.status(HttpStatusCode.OK).json(result)
   } catch (error) {
     next(error)
