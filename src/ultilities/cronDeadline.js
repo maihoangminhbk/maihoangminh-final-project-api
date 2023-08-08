@@ -6,10 +6,8 @@ import SENDMAIL, { setOptions } from '../mailer/mailer'
 
 export function checkDeadline() {
   cron.schedule('* * * * *', () => {
-    console.log('running a task every minute')
     // Get card deadline
     CardService.checkCardLate(0).then(result => {
-      console.log('result', result)
       const promises = []
       result.map(card => {
         const email = card.usersInfo[0].email
@@ -41,7 +39,6 @@ export function checkDeadline() {
       })
 
       Promise.all(promises).then((result) => {
-        console.log('All done', result)
       }).catch(e => {
         console.log(e)
       })
@@ -49,7 +46,6 @@ export function checkDeadline() {
 
     // Get card deadline after 1 day
     CardService.checkCardDeadline(1).then(result => {
-      console.log('result', result)
       const promises = []
       result.map(card => {
         const email = card.usersInfo[0].email
@@ -75,7 +71,6 @@ export function checkDeadline() {
       })
 
       Promise.all(promises).then((result) => {
-        console.log('All done', result)
       }).catch(e => {
         console.log(e)
       })

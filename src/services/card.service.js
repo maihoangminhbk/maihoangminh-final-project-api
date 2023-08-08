@@ -96,7 +96,7 @@ const update = async (id, userId, data) => {
       workplaceId: updatedCard.workplaceId.toString(),
       boardId: updatedCard.boardId.toString(),
       boardTitle: board.title,
-      notificationType: 'personal',
+      notificationType: 'board',
       userCreateId: userId,
       action: 'updated',
       userTargetId: null,

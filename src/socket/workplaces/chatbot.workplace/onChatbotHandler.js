@@ -4,7 +4,6 @@ const onChatbotEmit = 'onChatbot'
 const onChatbotHandler = (socket) => {
 
   const handleOnChatbot = (data) => {
-    console.log(data)
 
     const returnData = {
       

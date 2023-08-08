@@ -4,7 +4,7 @@ const onJoinBoardEmit = 'onJoinBoard'
 const onJoinBoardHandler = (socket) => {
 
   const handleOnJoinBoard = (boardId) => {
-    console.log('On join board', boardId)
+    // console.log('On join board', boardId)
 
     // socket.leaveAll()
     const roomArr = [...socket.rooms]

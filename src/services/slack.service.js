@@ -22,7 +22,6 @@ const auth = async (req) => {
     const url = env.SLACK_OAUTH_URL + `&state=${workplaceId}&redirect_uri=${env.SLACK_REDIRECT_URI}`
     // const url = env.SLACK_OAUTH_URL + `&redirect_uri=${env.SLACK_REDIRECT_URI}`
 
-    console.log('uri', url)
     const result = {
       url: url
     }
@@ -66,7 +65,6 @@ const callback = async (req) => {
     }
 
     await addToken(workspaceData)
-    console.log('workspace data', workspaceData)
 
     const return_script = '<script>window.close();</script>'
     return return_script
@@ -104,8 +102,6 @@ const getWorkspace = async (data) => {
   try {
     const { workplaceId } = data
 
-    console.log('workplace', workplaceId)
-
     const workplace = await WorkplaceService.getWorkplace(workplaceId)
     if (!workplace) {
       throw new BadRequest400Error('Workplace not exist')
@@ -137,8 +133,6 @@ const getConnections = async (data) => {
     }
 
     const connections = await SlackConnectionModel.getConnections(workplaceId)
-
-    console.log('connections', connections)
 
     return connections
 
@@ -188,21 +182,15 @@ const createConnection = async (data) => {
       await joinChannel(channelId, workspace.token)
     }
 
-    console.log('channel list', channelList)
-
     if (!channelList.includes(slackChannel)) {
       throw new BadRequest400Error('Can not found slack channel')
     }
 
     const checkExist = await SlackConnectionModel.checkExist(boardId, slackChannel)
 
-    console.log('slack service - check exist connection', checkExist)
-
     if (checkExist) {
       throw new Conflict409Error('Exist connection')
     }
-
-    console.log('slackChannels', slackChannels)
 
 
     const slackConnectionData = {
@@ -243,8 +231,6 @@ const getChannels = async (data) => {
       }
     })
 
-    console.log('channel list', channelList)
-
     return channelList
 
   } catch (error) {
@@ -276,13 +262,9 @@ const getSlackChannels = async (token) => {
   try {
     const client = new WebClient()
 
-    console.log('token', token)
-
     const response = await client.apiCall('conversations.list', {
       token: token
     })
-
-    console.log('get slack channel - respond', response.channels)
 
     if (!response.ok) {
       throw new Error('Cannot get channels in workspace')
@@ -307,14 +289,10 @@ const joinChannel = async (channelId, token) => {
   try {
     const client = new WebClient()
 
-    console.log('token', token)
-
     const response = await client.apiCall('conversations.join', {
       token: token,
       channel: channelId
     })
-
-    console.log('get slack channel - respond', response)
 
     if (!response.ok) {
       throw new Error('Cannot join channel, contact slack admin')

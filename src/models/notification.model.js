@@ -50,7 +50,6 @@ const createNew = async (data) => {
 
     return result
   } catch (error) {
-    console.log(error)
     throw new Error(error)
   }
 }
@@ -113,8 +112,6 @@ const getFollowingNotifications = async (workplaceId, dataSearch, page) => {
     // const PAGE_SIZE = ROWS_NUMBER.NOTIFICATION_LIST_DROP // Similar to 'limit'
     const PAGE_SIZE = 4
     const skip = (page - 1) * PAGE_SIZE
-
-    console.log('ownership.taskOrder', dataSearch.tasks)
 
 
     const result = await getDB().collection(notificationCollectionName).aggregate([

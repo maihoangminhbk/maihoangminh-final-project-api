@@ -86,7 +86,6 @@ const createNew = async (data) => {
 
     return result
   } catch (error) {
-    console.log(error)
     throw new Error(error)
   }
 }

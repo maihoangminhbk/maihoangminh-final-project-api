@@ -71,6 +71,13 @@ const loginWithGoogle = async (data) => {
 
     const userId = newUser._id.toString()
 
+    // Create ownership
+    const ownershipData = {
+      userId: userId
+    }
+
+    const createdOwnership = await OwnershipService.createNew(ownershipData)
+
     const workplaceData = {
       userId: userId,
       title: 'My workplace'

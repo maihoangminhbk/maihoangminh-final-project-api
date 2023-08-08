@@ -5,7 +5,6 @@ import onColumnUpdateStateHandler from './onColumnUpdateStateHandler'
 import onJoinBoardHandler from './onJoinBoard'
 
 const boardConnection = (socket) => {
-  console.log('a user connected to board socket server', socket.id)
 
   onColumnDropHandler(socket)
 
@@ -18,7 +17,7 @@ const boardConnection = (socket) => {
   onJoinBoardHandler(socket)
 
   socket.on('disconnect', (reason) => {
-    console.log('reason', reason)
+    // console.log('reason', reason)
   })
 
 }

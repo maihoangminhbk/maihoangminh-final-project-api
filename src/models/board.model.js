@@ -296,17 +296,19 @@ const searchUsers = async (boardId, keyword, page) => {
 
         ]
       } },
-      { $project: {
-        'usersInfo': 1,
-        'users.role' : 1
-      } }
-    ]).toArray()
+      // { $project: {
+      //   'usersInfo': 1,
+      //   'users.role' : 1
+      // } }
+    ]
+    ).toArray()
 
 
     const usersRoleList = result[0].users
     let usersInfoList = result[0].usersInfo
     usersInfoList = usersInfoList.map((user, index) => {
-      user = { ...user, role: usersRoleList[index].role }
+      const roleIndex = usersRoleList.findIndex(usersRole => usersRole.userId.toString() === user._id.toString())
+      user = { ...user, role: usersRoleList[roleIndex].role }
       return user
     })
 

@@ -142,8 +142,6 @@ const searchUsersToAddBoard = async (workplaceId, boardId, keyword, page) => {
     const PAGE_SIZE = ROWS_NUMBER.USER_LIST_DROPDOWN // Similar to 'limit'
     const skip = (page - 1) * PAGE_SIZE
 
-    console.log(workplaceId, boardId, keyword, page)
-
     const result = await getDB().collection(userCollectionName).aggregate([
       { $match: {
         $or: [

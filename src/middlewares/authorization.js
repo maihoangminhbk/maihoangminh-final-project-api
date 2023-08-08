@@ -99,15 +99,11 @@ const authorization = function(role) {
 
         if (req.baseUrl.toString().includes('tasks')) {
           cardId = await TaskService.getCardId(id)
-          console.log('check')
 
           if (!cardId) {
-            console.log('check1')
             cardId = req.body.cardId
           }
         }
-
-        console.log('cardId', cardId)
 
         const ownership = await OwnershipService.checkCardUser(cardId, userId)
 
@@ -124,15 +120,11 @@ const authorization = function(role) {
 
         if (req.baseUrl.toString().includes('tasks')) {
           cardId = await TaskService.getCardId(id)
-          console.log('check')
 
           if (!cardId) {
-            console.log('check1')
             cardId = req.body.cardId
           }
         }
-
-        console.log('cardId', cardId)
 
         const ownership = await OwnershipService.checkCardUser(cardId, userId)
 

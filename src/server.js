@@ -41,7 +41,6 @@ const credentials = {
 }
 
 const bootServer = () => {
-  console.log('access')
   const app = express()
 
   app.use(cors(corsOptions))

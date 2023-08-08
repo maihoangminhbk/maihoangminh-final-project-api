@@ -1,4 +1,5 @@
 import { BoardService } from '*/services/board.service'
+import { OwnershipService } from '*/services/ownership.service'
 import { HttpStatusCode } from '*/ultilities/constants'
 
 
@@ -93,6 +94,20 @@ const searchUsersToAdd = async (req, res, next) => {
   }
 }
 
+const getBoardRole = async (req, res, next) => {
+  try {
+    const { userId, id } = req.params
+    const check = await OwnershipService.checkBoardAdmin(id, userId)
+    const role = check ? 0 : 1
+    const result = {
+      role: role
+    }
+    res.status(HttpStatusCode.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 
 export const BoardController = {
   createNew,
@@ -103,5 +118,6 @@ export const BoardController = {
   searchUsers,
   searchUsersToAdd,
   deleteUser,
-  updateUser
+  updateUser,
+  getBoardRole
 }

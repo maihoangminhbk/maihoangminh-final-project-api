@@ -3,7 +3,6 @@ import { HttpStatusCode } from '*/ultilities/constants'
 
 const createNew = async (req, res, next) => {
 
-  console.log('board validation - test')
   const condition = Joi.object({
     title: Joi.string().required().min(3).max(100).trim(),
     workplaceId: Joi.string().required().min(3).trim()

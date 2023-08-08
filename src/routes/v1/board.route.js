@@ -33,4 +33,7 @@ router.route('/:id/search-users-to-add')
 router.route('/:id/users')
   .get(auth, BoardController.getUsers)
 
+router.route('/:id/get-board-role')
+  .get(auth, BoardController.getBoardRole)
+
 export const boardRoutes = router
