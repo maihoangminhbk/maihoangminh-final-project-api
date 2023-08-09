@@ -337,7 +337,7 @@ const getWorkplaceUserCountStatistic = async (workplaceId) => {
       } },
       { $project: {
         title: '$title',
-        count: { $add: [{ $size: '$users' }, 1] }
+        count: { $size: '$users' }
       } }
     ]
     ).toArray()
@@ -362,7 +362,7 @@ const getUserCount = async (boardId) => {
     ).toArray()
 
     // Add owner user
-    const count = result[0].count + 1
+    const count = result[0].count
 
     return count
   } catch (error) {

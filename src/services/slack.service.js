@@ -337,7 +337,8 @@ const postMessage = async (channel, token, notificationData) => {
             'text': text
           }
         }
-      ]
+      ],
+      text: 'Post notification'
     })
 
     if (!response.ok) {

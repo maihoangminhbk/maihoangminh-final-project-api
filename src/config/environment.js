@@ -14,5 +14,7 @@ export const env = {
   SOCKET_HOST: process.env.SOCKET_HOST,
 
   SLACK_OAUTH_URL: process.env.SLACK_OAUTH_URL,
-  SLACK_REDIRECT_URI: process.env.SLACK_REDIRECT_URI
+  SLACK_REDIRECT_URI: process.env.SLACK_REDIRECT_URI,
+
+  FRONTEND_HOST: process.env.FRONTEND_HOST
 }

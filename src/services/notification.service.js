@@ -63,7 +63,7 @@ const createNew = async (data) => {
 
     // Post notification to slack
     try {
-      if (workplaceId && boardId && notificationType === 'board') {
+      if (workplaceId && boardId && notificationType !== 'personal') {
         const token = await SlackService.getWorkspaceToken(workplaceId)
 
         if (token) {

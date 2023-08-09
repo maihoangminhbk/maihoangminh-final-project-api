@@ -12,7 +12,8 @@ export const WHITELIST_DOMAINS = [
   'http://localhost:3000',
   'https://localhost:3000',
   'http://localhost:3001',
-  'https://localhost:3443'
+  'https://localhost:3443',
+  'http://web.minhmai.software'
 ]
 
 export const ROLE = {

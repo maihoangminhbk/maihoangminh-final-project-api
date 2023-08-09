@@ -4,6 +4,8 @@ import { NotificationService } from '../services/notification.service'
 
 import SENDMAIL, { setOptions } from '../mailer/mailer'
 
+import { env } from '../config/environment'
+
 export function checkDeadline() {
   cron.schedule('* * * * *', () => {
     // Get card deadline
@@ -11,7 +13,7 @@ export function checkDeadline() {
       const promises = []
       result.map(card => {
         const email = card.usersInfo[0].email
-        const link = `https://localhost:3000/workplaces/${card.workplaceId.toString()}/boards/${card.boardId.toString()}`
+        const link = `${env.FRONTEND_HOST}/workplaces/${card.workplaceId.toString()}/boards/${card.boardId.toString()}`
         const mailOption = setOptions('Deadline notification', card.title + ' in ' + card.boardInfo[0].title, 'This card catched deadline. Please check ' + link, email)
         promises.push(SENDMAIL(mailOption, () => {
           console.log('Email sent successfully')
@@ -49,7 +51,7 @@ export function checkDeadline() {
       const promises = []
       result.map(card => {
         const email = card.usersInfo[0].email
-        const link = `https://localhost:3000/workplaces/${card.workplaceId.toString()}/boards/${card.boardId.toString()}`
+        const link = `http://localhost:3000/workplaces/${card.workplaceId.toString()}/boards/${card.boardId.toString()}`
         const mailOption = setOptions('Deadline notification', card.title + ' in ' + card.boardInfo[0].title, 'This card only 1 day before deadline. Please check ' + link, email)
         promises.push(SENDMAIL(mailOption, () => {
           console.log('Email sent successfully')
